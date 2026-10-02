@@ -50,6 +50,13 @@
   border-top: 1px solid #ddd;
 }
 
+.keyboard-dismiss-zone {
+  height: 8px;
+  margin: -14px 0 6px;
+  border-radius: 8px;
+  background: transparent;
+}
+
 .keyboard-footer input {
   width: 100%;
   height: 48px;

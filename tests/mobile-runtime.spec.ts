@@ -101,11 +101,18 @@ test("keyboard and its attached footer dismiss on the same transition", async ({
   await page.goto("/tests/runtime-fixture.html?fixture=keyboard");
   const input = page.getByLabel("Message");
   const footer = page.getByTestId("flow-fixed-footer");
+  const dismissZone = page.getByTestId("keyboard-dismiss-zone");
   const keyboard = page.getByTestId("keyboard-dock");
 
   await input.click();
   await expect(keyboard).toHaveAttribute("data-visible", "true");
-  await drag(page, footer, 0, 120, 5);
+  await expect
+    .poll(
+      () => footer.evaluate((element) => Number.parseFloat(getComputedStyle(element).bottom)),
+      { message: "keyboard footer settles above the visible keyboard" },
+    )
+    .toBeGreaterThan(337);
+  await drag(page, dismissZone, 0, 120, 5);
   await expect(keyboard).toHaveAttribute("data-visible", "false");
 
   await page.waitForTimeout(100);

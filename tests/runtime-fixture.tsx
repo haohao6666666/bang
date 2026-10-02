@@ -62,6 +62,7 @@ function KeyboardFixture() {
     footerHeight: 84,
     footer: () => (
       <div className="keyboard-footer">
+        <div className="keyboard-dismiss-zone" data-testid="keyboard-dismiss-zone" aria-label="Drag to dismiss keyboard" />
         <KeyboardInput aria-label="Message" placeholder="Message" />
       </div>
     ),
