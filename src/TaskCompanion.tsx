@@ -12,6 +12,7 @@ import {
   type CompanionTask,
   type TaskEvidenceRecord,
 } from "./taskEvidence";
+import { requestCompanion } from "./taskEvidence";
 import "./taskCompanion.css";
 
 export type TaskCompanionRecord = TaskEvidenceRecord;
@@ -21,6 +22,7 @@ export type TaskCompanionProps = {
   onConfirm: (record: TaskCompanionRecord) => void;
   onDelete?: (record: TaskCompanionRecord) => void;
   onOpenSettings?: () => void;
+  onForget?: () => void;
   onClose?: () => void;
 };
 
@@ -39,9 +41,10 @@ function closeoutReply(choice: CloseoutChoice) {
   return "卡点已经被记住，之后可以从这里继续。";
 }
 
-export function TaskCompanion({ task, dateKey, onConfirm, onDelete, onClose }: TaskCompanionProps) {
+export function TaskCompanion({ task, dateKey, onConfirm, onDelete, onClose, onForget }: TaskCompanionProps) {
   const [choice, setChoice] = useState<CloseoutChoice | null>(null);
   const [summary, setSummary] = useState("");
+  const [nextStep, setNextStep] = useState("");
   const [error, setError] = useState("");
   const [reply, setReply] = useState("");
   const [records, setRecords] = useState<TaskEvidenceRecord[]>(() => listTaskEvidence(task.id));
@@ -71,12 +74,15 @@ export function TaskCompanion({ task, dateKey, onConfirm, onDelete, onClose }: T
       taskId: task.id,
       dateKey,
       summary: body,
+      nextStep: nextStep.trim() || undefined,
       source: "chat",
       evidenceQuotes: [body],
     });
     saveTaskEvidence(record);
     onConfirm(record);
     setReply(closeoutReply(choice));
+    if (/记错了|忘掉这件事|忘记这件事/.test(body)) onForget?.();
+    void requestCompanion(task, [{ role: "user", content: body }]).then(result => { if (result.reply.trim()) setReply(result.reply.trim()); }).catch(() => {});
     setError("");
   };
 
@@ -91,7 +97,7 @@ export function TaskCompanion({ task, dateKey, onConfirm, onDelete, onClose }: T
     <div className="closeout-choice-grid" role="group" aria-label="这一步的收尾方式">
       {choices.map(item => <button type="button" key={item.value} className={choice === item.value ? "selected" : ""} onClick={() => { setChoice(item.value); setError(""); }}>{item.label}<small>{item.hint}</small></button>)}
     </div>
-    {choice && choice !== "skip" && <label className="closeout-note">补一句（可选）<KeyboardTextarea aria-label="补充这一步留下的内容" value={summary} maxLength={1200} placeholder="例如：整理了三道错题，找到第二题出错的原因" onChange={event => { setSummary(event.target.value); setError(""); }} /></label>}
+    {choice && choice !== "skip" && <><label className="closeout-note">补一句（可选）<KeyboardTextarea aria-label="补充这一步留下的内容" value={summary} maxLength={1200} placeholder="例如：整理了三道错题，找到第二题出错的原因" onChange={event => { setSummary(event.target.value); setError(""); }} /></label><label className="closeout-note">下一次从哪里接上？（可选）<KeyboardTextarea aria-label="填写下一次继续点" value={nextStep} maxLength={600} placeholder="例如：从第三题开始" onChange={event => { setNextStep(event.target.value); setError(""); }} /></label></>}
     {error && <p className="task-companion-error" role="alert">{error}</p>}
     {reply && <div className="closeout-reply"><ReferenceArt kind="cheering" alt="小狗轻轻回应" /><p>{reply}</p></div>}
     {!reply && <div className="closeout-actions"><button type="button" className="task-companion-primary" disabled={!choice} onClick={save}>{choice === "skip" ? "跳过" : "收好这句话"}</button>{onClose && <button type="button" className="task-companion-close" onClick={skip}>现在不写</button>}</div>}

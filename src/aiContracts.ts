@@ -9,7 +9,7 @@ export type AiSnapshot = {
   evidence: Array<EvidenceRef & { text: string }>;
   bookmarks: SavedBookmark[];
 };
-export type GeneratedDayStamp = { id: string; dateKey: string; imageUrl: string; title: string; meaning: string; prompt: string; createdAt: number; evidenceIds: string[]; model: string };
+export type GeneratedDayStamp = { id: string; dateKey: string; imageUrl: string; title: string; meaning: string; prompt?: string; createdAt: number; evidenceIds: string[]; model?: string; sourceTaskId?: string };
 export type ModelConfiguration = { provider: string; baseUrl: string; model: string; apiKey?: string };
 export type AiServiceStatus = {
   text: Omit<ModelConfiguration,"apiKey"> & { configured: boolean };
@@ -33,6 +33,10 @@ export const aiClient = {
   weekly: (snapshots: AiSnapshot[], rangeStart: string, rangeEnd: string, signal?: AbortSignal) => request<{ draft: WeeklyEchoDraft }>("weekly", { snapshots, rangeStart, rangeEnd, consent: true }, signal),
   stamp: (input: { dateKey: string; brief: string; evidenceIds: string[]; snapshot: AiSnapshot }, signal?: AbortSignal) => request<{ stamp: GeneratedDayStamp }>("stamp", { ...input, consent: true }, signal),
   stamps: () => request<{ stamps: GeneratedDayStamp[] }>("stamps"),
+  memory: (input: { eventKey: string; taskId?: string; dateKey: string; userQuotes?: string[]; nextStep?: string; sourceIds?: string[]; forget?: boolean; allDates?: boolean }) => request<{ stored: boolean; duplicate?: boolean }>("memory", input),
+  memoryStatus: () => request<{ enabled: boolean; count: number }>("memory/status"),
+  clearMemory: () => request<{ cleared: boolean }>("memory-clear", {}),
+  autoStamp: (input: { dateKey: string; brief: string; evidenceIds: string[]; snapshot: AiSnapshot; eventKey: string }, signal?: AbortSignal) => request<{ stamp: GeneratedDayStamp }>("stamp", { ...input, automatic: true }, signal),
 };
 
 export const AI_WORKSPACE_KEY = "jixiang-ai-workspace-v1";
@@ -49,7 +53,7 @@ export function readAiWorkspace(): AiWorkspace {
       seen.add(row.id);
       return [{ id: row.id, ...url, title: row.title.slice(0, 200), excerpt: row.excerpt.slice(0, 8000), savedAt: Number.isFinite(row.savedAt) ? row.savedAt : Date.now(), authorized: row.authorized === true && row.excerpt.length >= 20 }];
     });
-    const stamps = (Array.isArray(value.stamps) ? value.stamps : []).filter((item: GeneratedDayStamp) => item && typeof item.id === "string" && typeof item.dateKey === "string" && /^\d{4}-\d{2}-\d{2}$/.test(item.dateKey) && typeof item.imageUrl === "string" && typeof item.title === "string" && typeof item.prompt === "string" && Array.isArray(item.evidenceIds));
+    const stamps = (Array.isArray(value.stamps) ? value.stamps : []).filter((item: GeneratedDayStamp) => item && typeof item.id === "string" && typeof item.dateKey === "string" && /^\d{4}-\d{2}-\d{2}$/.test(item.dateKey) && typeof item.imageUrl === "string" && typeof item.title === "string" && Array.isArray(item.evidenceIds));
     return { ...empty, bookmarks, stamps, includeDiary: value.includeDiary === true, useBookmarks: value.useBookmarks === true };
   } catch { return empty; }
 }

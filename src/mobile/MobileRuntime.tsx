@@ -33,16 +33,11 @@ export function MobileRuntime({ children }: PropsWithChildren) {
 function shouldUsePreviewShell() {
   if (typeof window === "undefined") return true;
   const params = new URLSearchParams(window.location.search);
+  // The product uses the real viewport by default. The framed preview remains
+  // available for the interaction fixture and an explicit preview link.
+  if (window.location.pathname.endsWith("/tests/runtime-fixture.html")) return true;
   if (params.get("preview") === "1") return true;
-  if (params.get("app") === "1") return false;
-  if (window.matchMedia?.("(display-mode: standalone)").matches) return false;
-
-  // Desktop workbench and its touch emulation keep the device picker. A real
-  // iPhone/iPad/Android user agent goes straight to the real app shell.
-  // iPadOS can report a Mac user agent, so its touch-point signal is included.
-  const mobileUserAgent = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const ipadDesktopUserAgent = navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent);
-  return !(mobileUserAgent || ipadDesktopUserAgent);
+  return false;
 }
 
 function NativeMobileRuntime({ children }: PropsWithChildren) {

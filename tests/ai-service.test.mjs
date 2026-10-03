@@ -365,3 +365,35 @@ test('companion forwards cancellation and does not return a fabricated fallback'
   controller.abort();
   await assert.rejects(pending, error => error.status === 504);
 });
+
+test('background memory stores exact user wording, deduplicates events, and forgets one event cleanly', async t => {
+  const { service, dataDir } = await fixture(t);
+  const event = { eventKey: 'companion:task-1:2026-10-03:1', taskId: 'task-1', dateKey: DAY, userQuotes: ['我读到第二段，先把问题写下来。'], nextStep: '下次从第三段接着读。', sourceIds: ['outcome-1'] };
+  assert.deepEqual(await service.memory(event), { stored: true });
+  assert.deepEqual(await service.memory(event), { stored: false, duplicate: true });
+  assert.deepEqual(await service.memoryStatus(), { enabled: true, count: 1 });
+  const document = JSON.parse(await fs.readFile(path.join(dataDir, 'memory', 'task-1', `${DAY}.json`), 'utf8'));
+  assert.deepEqual(document.quotes.map(item => ({ text: item.text, source: item.source })), [{ text: event.userQuotes[0], source: 'user' }]);
+  assert.deepEqual(document.inferences, []);
+  assert.equal(document.nextSteps[0].text, event.nextStep);
+  assert.equal((await service.memory({ forget: true, taskId: 'task-1', dateKey: DAY, eventKey: event.eventKey })).cleared, true);
+  assert.deepEqual(await service.memoryStatus(), { enabled: true, count: 0 });
+});
+
+test('automatic stamps require a concrete same-day record and reuse one result per day', async t => {
+  let submissions = 0;
+  const { service } = await fixture(t, async url => {
+    if (String(url).endsWith('/image-synthesis')) { submissions += 1; return json({ output: { task_id: 'automatic-job' } }); }
+    if (String(url).endsWith('/tasks/automatic-job')) return json({ output: { task_status: 'SUCCEEDED', results: [{ b64_json: PNG.toString('base64') }] } });
+    throw new Error('Unexpected endpoint');
+  });
+  await service.configure(config());
+  const base = { automatic: true, dateKey: DAY, brief: '留下一个具体问题的阅读记录', snapshot: snapshot(), eventKey: 'work:1' };
+  await assert.rejects(() => service.stamp({ ...base, evidenceIds: [`focus-${DAY}`] }), /具体作品或经历/);
+  const first = await service.stamp({ ...base, evidenceIds: [`outcome-${DAY}`] });
+  const second = await service.stamp({ ...base, evidenceIds: [`outcome-${DAY}`], brief: '同一天的第二次请求' });
+  assert.deepEqual(second, first);
+  assert.equal(submissions, 1);
+  assert.equal(first.stamp.prompt, undefined);
+  assert.equal(first.stamp.model, undefined);
+});

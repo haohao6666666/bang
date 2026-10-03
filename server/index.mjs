@@ -55,6 +55,7 @@ export function startApi({
       const url = new URL(req.url, 'http://127.0.0.1');
       if (req.method === 'GET' && url.pathname === '/api/ai/status') return send(200, await service.status());
       if (req.method === 'GET' && url.pathname === '/api/ai/stamps') return send(200, await service.stamps());
+      if (req.method === 'GET' && url.pathname === '/api/ai/memory/status') return send(200, await service.memoryStatus());
       if (req.method === 'GET' && url.pathname.startsWith('/api/ai/stamp-assets/')) {
         const asset = await service.asset(url.pathname.split('/').pop());
         res.writeHead(200, {
@@ -70,7 +71,7 @@ export function startApi({
       }
 
       const name = url.pathname.slice('/api/ai/'.length);
-      const endpoints = ['config', 'echo', 'weekly', 'stamp', 'companion', 'analyze'];
+      const endpoints = ['config', 'echo', 'weekly', 'stamp', 'companion', 'analyze', 'memory', 'memory-clear'];
       if (!url.pathname.startsWith('/api/ai/') || !endpoints.includes(name)) return send(404, { error: '接口不存在。' });
       if (name === 'config' && allowLan && !/^(127\.0\.0\.1|localhost|::1)$/.test(hostname) && !allowLanConfig) {
         throw new ServiceError('模型配置只允许在运行服务的电脑上修改。', 403);

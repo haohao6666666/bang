@@ -18,13 +18,38 @@ export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=
     const prefix=kind==='text'?'JIXIANG_TEXT_':kind==='vision'?'JIXIANG_VISION_':'JIXIANG_IMAGE_';const provider=env[prefix+'PROVIDER']||defaults[kind].provider;
     result[kind]={...defaults[kind],provider,baseUrl:env[prefix+'BASE_URL']||defaults[kind].baseUrl,model:env[prefix+'MODEL']||defaults[kind].model,apiKey:env[prefix+'API_KEY']||(['qwen','wan'].includes(provider)?env.DASHSCOPE_API_KEY||'':'')};
   }return result;}
+  // The status contract keeps connection metadata for local diagnostics. The UI intentionally does not render it.
   const publicStatus=c=>({text:{provider:c.text.provider,baseUrl:c.text.baseUrl,model:c.text.model,configured:Boolean(c.text.apiKey)},vision:{provider:c.vision.provider,baseUrl:c.vision.baseUrl,model:c.vision.model,configured:Boolean(c.vision.apiKey)},image:{provider:c.image.provider,baseUrl:c.image.baseUrl,model:c.image.model,configured:Boolean(c.image.apiKey)},bookmarks:{zhihu:'import',xiaohongshu:'import'}});
   async function exclusive(key,fn){if(locks.has(key))throw new ServiceError('这一项正在处理中，请等待当前请求完成。',409);locks.add(key);try{return await fn();}finally{locks.delete(key);}}
+  const memoryDir=path.join(dataDir,'memory');
+  const safeMemoryPart=value=>String(value||'local').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,120)||'local';
+  async function memoryFiles(){const files=await fs.readdir(memoryDir,{withFileTypes:true}).catch(()=>[]);const result=[];for(const entry of files){if(!entry.isDirectory())continue;const nested=await fs.readdir(path.join(memoryDir,entry.name)).catch(()=>[]);result.push(...nested.filter(name=>/^\d{4}-\d{2}-\d{2}\.json$/.test(name)).map(name=>path.join(memoryDir,entry.name,name)));}return result;}
+  async function memoryStatus(){return {enabled:true,count:(await memoryFiles()).length};}
+  async function updateMemory(body){
+    const date=dateKey(body?.dateKey), taskId=text(body?.taskId,180)||'unlinked', eventKey=text(body?.eventKey,220);
+    if(!eventKey)throw new ServiceError('记忆事件缺少标识。');
+    const quotes=list(body?.userQuotes,8).map(item=>text(item,500)).filter(Boolean);
+    const nextStep=text(body?.nextStep,500);
+    if(!quotes.length&&!nextStep)return {stored:false};
+    const file=path.join(memoryDir,safeMemoryPart(taskId),`${date}.json`);const current=await readJson(file,{version:1,taskId,dateKey:date,quotes:[],nextSteps:[],sources:[],inferences:[],events:[]});
+    if(current.events?.some(item=>item.eventKey===eventKey))return {stored:false,duplicate:true};
+    const quoteIds=quotes.map((_,index)=>`${eventKey}:quote:${index}`);
+    const nextStepId=nextStep?`${eventKey}:next`:undefined;
+    const sourceIds=list(body?.sourceIds,12).map(item=>text(item,180)).filter(Boolean);
+    const event={eventKey,createdAt:Date.now(),quoteIds,nextStepId,sourceIds};
+    const next={version:1,taskId,dateKey:date,quotes:[...(Array.isArray(current.quotes)?current.quotes:[]),...quotes.map((quote,index)=>({id:quoteIds[index],text:quote,source:'user'}))].slice(-80),nextSteps:nextStep?[...(Array.isArray(current.nextSteps)?current.nextSteps:[]),{id:nextStepId,text:nextStep,source:'user',createdAt:Date.now()}].slice(-40):current.nextSteps||[],sources:[...(Array.isArray(current.sources)?current.sources:[]),...sourceIds].slice(-120),inferences:Array.isArray(current.inferences)?current.inferences:[],events:[...(Array.isArray(current.events)?current.events:[]),event].slice(-120)};
+    await writeJson(file,next);return {stored:true};
+  }
+  async function clearMemory(){await fs.rm(memoryDir,{recursive:true,force:true});return {cleared:true};}
+  async function forgetMemory(body){const task=text(body?.taskId,180);const day=body?.allDates===true?'':body?.dateKey?dateKey(body.dateKey):'';const eventKey=text(body?.eventKey,220);let removed=0;for(const file of await memoryFiles()){const doc=await readJson(file,null);if(!doc)continue;if(task&&doc.taskId!==task)continue;if(day&&doc.dateKey!==day)continue;if(eventKey&&body?.allDates!==true){const events=Array.isArray(doc.events)?doc.events:[];const target=events.find(item=>item.eventKey===eventKey);if(!target)continue;const quoteIds=new Set(Array.isArray(target.quoteIds)?target.quoteIds:[]);const nextStepId=target.nextStepId;const sourceIds=new Set(Array.isArray(target.sourceIds)?target.sourceIds:[]);const remainingEvents=events.filter(item=>item.eventKey!==eventKey);const remainingQuotes=(Array.isArray(doc.quotes)?doc.quotes:[]).filter(item=>!quoteIds.has(item.id));const remainingNextSteps=(Array.isArray(doc.nextSteps)?doc.nextSteps:[]).filter(item=>nextStepId?item.id!==nextStepId:remainingEvents.length>0);const remainingSources=(Array.isArray(doc.sources)?doc.sources:[]).filter(item=>!sourceIds.has(item));if(!remainingEvents.length&&!remainingQuotes.length&&!remainingNextSteps.length&&!remainingSources.length){await fs.unlink(file).catch(()=>{});}else{await writeJson(file,{...doc,quotes:remainingQuotes,nextSteps:remainingNextSteps,sources:remainingSources,events:remainingEvents});}removed++;}else{await fs.unlink(file).catch(()=>{});removed++;}}return {cleared:removed>0,removed};}
   async function callText(stage,snapshot,c,signal,extra={}){
     return chat(validateConfig(c.text,'text'),[{role:'system',content:SYSTEM_PROMPT},{role:'user',content:JSON.stringify({stage,instructions:stage==='C1'?'只理解本地事实，externalMatches必须为空。需要经验帮助时needsExternal=true；没有必要不要强行建议。':'将授权收藏中有用的部分适配本地事实，说明条件和局限。无相关原文则保留本地回声，不制造引用。',schema:DAILY_SCHEMA,snapshot,...extra})}],{fetcher,signal});
   }
   return {
     status:async()=>publicStatus(await config()),
+    memoryStatus,
+    memory:async body=>body?.forget===true?forgetMemory(body):updateMemory(body),
+    'memory-clear':async()=>clearMemory(),
     configure:async body=>exclusive('config',async()=>{const old=await config();const next={};for(const kind of ['text','vision','image']){const incoming=body?.[kind]||old[kind]||defaults[kind];next[kind]=validateConfig(incoming,kind);if(!body?.[kind]?.apiKey&&next[kind].provider===old[kind].provider&&next[kind].baseUrl===old[kind].baseUrl)next[kind].apiKey=old[kind].apiKey;}await writeJson(configFile,next);return publicStatus(await config());}),
     echo:async(body,signal)=>exclusive('text',async()=>{
       if(body?.consent!==true)throw new ServiceError('需要确认本次发送范围。',403);
@@ -90,16 +115,18 @@ export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=
       if(!observations.length)throw new ServiceError('周回声没有满足跨日期证据要求的观察，未保存。',502);
       return {draft:{status:'draft',rangeStart:start,rangeEnd:end,observations}};
     }),
-    stamps:async()=>{const files=await fs.readdir(path.join(dataDir,'stamps')).catch(()=>[]);const stamps=[];for(const name of files.filter(name=>/^\d{4}-\d{2}-\d{2}\.json$/.test(name))){const stamp=await readJson(path.join(dataDir,'stamps',name),null);if(stamp?.imageUrl)stamps.push(stamp);}return {stamps};},
+    stamps:async()=>{const files=await fs.readdir(path.join(dataDir,'stamps')).catch(()=>[]);const stamps=[];for(const name of files.filter(name=>/^\d{4}-\d{2}-\d{2}\.json$/.test(name))){const stamp=await readJson(path.join(dataDir,'stamps',name),null);if(stamp?.imageUrl){const {prompt,model,...safe}=stamp;void prompt;void model;stamps.push(safe);}}return {stamps};},
     stamp:async(body,signal)=>{
       const day=dateKey(body?.dateKey);
       return exclusive('image',async()=>{
-        if(body.consent!==true)throw new ServiceError('请确认绘图说明后再生成。',403);
+        if(body.consent!==true&&body.automatic!==true)throw new ServiceError('请确认绘图说明后再生成。',403);
         const snapshot=normalizeSnapshot(body.snapshot);if(snapshot.dateKey!==day)throw new ServiceError('印章日期与证据日期不一致。');
         const evidenceIds=list(body.evidenceIds,30);if(!evidenceIds.length||evidenceIds.some(id=>!snapshot.evidence.some(item=>item.id===id&&item.kind!=='task')))throw new ServiceError('印章需要同一天的投入、成果、日记或便签作为依据。');
+        if(body.automatic===true&&!evidenceIds.some(id=>snapshot.evidence.some(item=>item.id===id&&['outcome','note','diary'].includes(item.kind))))throw new ServiceError('没有具体作品或经历，暂不生成印章。');
         const brief=text(body.brief,500);if(brief.length<4)throw new ServiceError('请写下一句当天的绘图说明。');
+        const eventKey=text(body.eventKey,220)||evidenceIds.slice().sort().join('|');
         const stampFile=path.join(dataDir,'stamps',`${day}.json`),jobFile=path.join(dataDir,'stamps',`${day}.job.json`);
-        const existing=await readJson(stampFile,null);if(existing)return {stamp:existing};
+        const existing=await readJson(stampFile,null);if(existing){const {prompt,model,...safe}=existing;void prompt;void model;return {stamp:safe};}
         const c=await config(),imageConfig=validateConfig(c.image,'image');
         const oldJob=await readJson(jobFile,null);
         if(oldJob?.provider&&(oldJob.provider!==imageConfig.provider||oldJob.baseUrl!==imageConfig.baseUrl||oldJob.model!==imageConfig.model))throw new ServiceError('这一天已有绘图任务，请恢复原厂商、API 地址和模型后继续查询，避免重复计费。',409);
@@ -108,7 +135,7 @@ export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=
         const {bytes,extension}=await imageBytes(result,{fetcher,signal});
         const id=createHash('sha256').update(bytes).digest('hex').slice(0,24);const fileName=`${day}-${id}.${extension}`;
         await fs.mkdir(path.dirname(stampFile),{recursive:true});await fs.writeFile(path.join(dataDir,'stamps',fileName),bytes);
-        const stamp={id:`day-${day}-${id}`,dateKey:day,imageUrl:`/api/ai/stamp-assets/${fileName}`,title:'这一日的独特印记',meaning:oldJob?.brief||brief,prompt,createdAt:Date.now(),evidenceIds:oldJob?.evidenceIds||evidenceIds,model:oldJob?.model||imageConfig.model};
+        const stamp={id:`day-${day}-${id}`,dateKey:day,imageUrl:`/api/ai/stamp-assets/${fileName}`,title:'这一日的独特印记',meaning:oldJob?.brief||brief,createdAt:Date.now(),evidenceIds:oldJob?.evidenceIds||evidenceIds,eventKey};
         await writeJson(stampFile,stamp);return {stamp};
       });
     },
