@@ -1,11 +1,14 @@
 import { ServiceError, text } from './validation.mjs';
 export const defaults = {
   text:{provider:'qwen',baseUrl:'https://dashscope.aliyuncs.com/compatible-mode/v1',model:'qwen-plus',apiKey:''},
+  // Vision is separate from the image generator: photos are user data and must
+  // never silently fall back to a text-only model.
+  vision:{provider:'qwen',baseUrl:'https://dashscope.aliyuncs.com/compatible-mode/v1',model:'qwen-vl-max',apiKey:''},
   image:{provider:'wan',baseUrl:'https://dashscope.aliyuncs.com/api/v1',model:'wan2.2-t2i-flash',apiKey:''}
 };
 export function validateConfig(part, kind) {
   if (!part || typeof part !== 'object') throw new ServiceError('模型配置不完整。');
-  const providers=kind==='text'?['qwen','deepseek','tokendance','doubao']:['wan','doubao'];
+  const providers=kind==='text'?['qwen','deepseek','tokendance','doubao']:kind==='vision'?['qwen','doubao']:['wan','doubao'];
   if(!providers.includes(part.provider)) throw new ServiceError('不支持这个模型服务。');
   let url; try{url=new URL(part.baseUrl);}catch{throw new ServiceError('请填写官方 HTTPS API 地址。');}
   const ali=url.hostname==='dashscope.aliyuncs.com'||/^[a-z0-9-]+\.cn-beijing\.maas\.aliyuncs\.com$/.test(url.hostname);
@@ -26,12 +29,21 @@ async function jsonRequest(url, options, fetcher) {
 }
 export async function chat(config, messages, {fetcher=fetch,signal}={}) {
   if(!config.apiKey) throw new ServiceError('尚未配置文本模型 API Key，请在「我的 → 模型与收藏」中填写。',503);
-  const body={model:config.model,messages,stream:false,response_format:{type:'json_object'},max_tokens:5000};
+  const body={model:config.model,messages,stream:false,response_format:{type:'json_object'},max_tokens:2200};
   if(config.provider==='qwen')body.enable_thinking=false;
   const data=await jsonRequest(`${config.baseUrl}/chat/completions`,{method:'POST',headers:{Authorization:`Bearer ${config.apiKey}`,'Content-Type':'application/json'},body:JSON.stringify(body),signal:signal?AbortSignal.any([signal,AbortSignal.timeout(90000)]):AbortSignal.timeout(90000)},fetcher);
   const content=data?.choices?.[0]?.message?.content;
   if(typeof content!=='string')throw new ServiceError('模型未返回可解析的回声。',502);
   try{return JSON.parse(content.replace(/^\s*```(?:json)?\s*/,'').replace(/\s*```\s*$/,''));}catch{throw new ServiceError('模型返回的 JSON 不完整，请重试。',502);}
+}
+export async function vision(config, prompt, dataUrl, {fetcher=fetch,signal}={}) {
+  if(!config.apiKey) throw new ServiceError('尚未配置成果识别模型，请先在设置中单独配置视觉模型。',503);
+  if(typeof dataUrl!=='string'||!/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) throw new ServiceError('成果图片格式无法识别。');
+  const body={model:config.model,messages:[{role:'system',content:'你是迹向的成果观察助手。只描述图片中能直接看见的内容，不猜测作者、过程、成绩、情绪或未显示的事实。输出 JSON，不要 Markdown。'},{role:'user',content:[{type:'text',text:prompt},{type:'image_url',image_url:{url:dataUrl}}]}],stream:false,response_format:{type:'json_object'},max_tokens:1600};
+  const data=await jsonRequest(`${config.baseUrl}/chat/completions`,{method:'POST',headers:{Authorization:`Bearer ${config.apiKey}`,'Content-Type':'application/json'},body:JSON.stringify(body),signal:signal?AbortSignal.any([signal,AbortSignal.timeout(60000)]):AbortSignal.timeout(60000)},fetcher);
+  const content=data?.choices?.[0]?.message?.content;
+  if(typeof content!=='string')throw new ServiceError('视觉模型未返回可解析的观察。',502);
+  try{return JSON.parse(content.replace(/^\s*```(?:json)?\s*/,'').replace(/\s*```\s*$/,''));}catch{throw new ServiceError('视觉模型返回的 JSON 不完整，请重试。',502);}
 }
 const wait=(ms,signal)=>new Promise((resolve,reject)=>{const done=()=>{clearTimeout(timer);signal?.removeEventListener('abort',abort);resolve();}; const abort=()=>{clearTimeout(timer);signal?.removeEventListener('abort',abort);reject(new ServiceError('已停止等待绘图；已提交的模型任务可能仍产生费用。',499));}; const timer=setTimeout(done,ms);signal?.addEventListener('abort',abort,{once:true});if(signal?.aborted)abort();});
 export async function imageGeneration(config,prompt,{fetcher=fetch,signal,onJob=async()=>{},jobId,pollDelay=2000}={}) {

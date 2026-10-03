@@ -12,6 +12,7 @@
     "dev": "node server/dev.mjs",
     "dev:ui": "vite",
     "start:api": "node server/index.mjs",
+    "serve": "node server/serve.mjs",
     "test:ai": "node --test tests/ai-service.test.mjs",
     "prebuild": "npm run check:runtime",
     "build": "tsc && vite build && node scripts/prepare-sites-build.mjs"

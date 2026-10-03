@@ -270,3 +270,35 @@
 .jixiang-shell { container-type:inline-size; }
 @container(max-width:380px) { .jixiang-app { padding-inline:15px; }.app-header { padding-inline:19px; }.journal-hero-art { width:148px; height:148px; }.journal-hero h1 { font-size:31px; }.journey-steps button { font-size:10px; }.stampbook-mobile-day-date { gap:3px; }.stampbook-mobile-day-meta strong { font-size:7px; }.calendar-stamp.compact { width:29px; height:29px; } }
 @container(min-width:700px) { .jixiang-app { max-width:1000px; margin:auto; padding:20px 40px 45px; }.app-header { padding-inline:48px; }.journal-hero { min-height:240px; }.journal-hero h1 { font-size:43px; }.journal-hero-art { width:340px; right:20px; top:3px; }.route-card { padding:28px; }.task-row { grid-template-columns:25px 34px minmax(0,1fr) 20px; }.task-copy strong { font-size:16px; }.task-copy small { font-size:12px; }.stampbook-mobile-day-card { padding:17px; }.calendar-stamp.compact { width:48px; height:48px; }.stampbook-mobile-day-stamps { grid-template-columns:repeat(3,minmax(0,1fr)); }.stampbook-mobile-day-date strong { font-size:19px; }.stampbook-mobile-day-date em { font-size:12px; }.stampbook-mobile-day-meta strong { font-size:12px; }.stampbook-mobile-sheet { padding:30px; }.stampbook-hero { min-height:205px; }.stampbook-hero>img { width:270px; right:20px; }.bottom-nav { padding-inline:20%; } }
+
+/* Small, explicit controls keep task planning understandable on a phone. */
+.task-composer-duration { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.task-composer-duration > label { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; color: var(--ink-muted, #72685d); font-size: 12px; }
+.task-composer-duration > label input { width: 52px; padding: 10px 6px; border: 1px solid rgba(84, 70, 54, .18); border-radius: 10px; background: #fffdf8; color: var(--ink, #3e342c); text-align: center; font: inherit; font-weight: 700; }
+.settings-inline-input { display: inline-flex; gap: 8px; align-items: center; justify-content: flex-end; }
+.settings-inline-input small { color: var(--ink-muted, #72685d); font-size: 11px; }
+@media (max-width: 390px) { .task-composer-duration { grid-template-columns: 1fr; } .task-composer-duration > label { justify-content: flex-start; } }
+.journal-purpose { margin: -4px 0 14px; color: var(--ink-muted, #72685d); font-size: 12px; line-height: 1.6; }
+.companion-launch { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; align-items: center; gap: 12px; margin: 14px 0; padding: 12px; }
+.companion-launch img { width: 58px; height: 58px; object-fit: contain; }
+.companion-launch h3 { margin: 4px 0; font-size: 15px; }
+.companion-launch p { margin: 0; color: var(--ink-muted, #72685d); font-size: 12px; line-height: 1.5; }
+@media (max-width: 390px) { .companion-launch { grid-template-columns: 48px minmax(0, 1fr); } .companion-launch .outline-button { grid-column: 1 / -1; width: 100%; } }
+
+/* Refined product hierarchy: one visible navigation, shorter copy, quieter optional AI. */
+.brand-lockup { display:flex; align-items:center; gap:9px; padding:0; color:var(--jx-ink); text-align:left; }
+.brand-lockup .brand-sprout { width:30px; height:36px; }
+.today-title-row { display:flex; align-items:center; gap:7px; }
+.demo-badge { display:inline-flex; align-items:center; padding:3px 7px; border:1px solid #d7c39a; border-radius:999px; color:#97734b; background:#fff8e7; font-size:9px; line-height:1.2; }
+.journal-hero-copy>p:last-child { max-width:205px; }
+.journal-hero { min-height:176px; padding-bottom:25px; }
+.optional-ai-section { border:1px solid #e1d8e9; border-radius:18px; background:#fbf9fd; overflow:hidden; }
+.optional-ai-section>summary { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:15px 16px; color:#6b587b; font-size:12px; cursor:pointer; list-style:none; }
+.optional-ai-section>summary::-webkit-details-marker { display:none; }
+.optional-ai-section>summary::after { content:"＋"; color:#957fa2; font-size:17px; }
+.optional-ai-section[open]>summary::after { content:"−"; }
+.optional-ai-section>summary span { margin-left:auto; color:#a293ad; font-size:10px; }
+.optional-ai-content { padding:0 10px 12px; }
+.optional-ai-content .ai-echo-panel { margin:0; border:0; box-shadow:none; background:transparent; }
+.optional-ai-content .ai-panel-heading { padding-top:9px; }
+.optional-ai-content .ai-echo-panel>.ai-panel-heading h2 { font-size:20px; }

@@ -101,7 +101,7 @@ test('quiet days can consult authorized collections and a C2 failure preserves t
     return stage === 'C1' ? chatResponse(c1) : json({ error: 'temporary failure' }, 503);
   });
   await service.configure(config());
-  const result = await service.echo({ consent: true, snapshot: snapshot(DAY, [bookmark()]) });
+  const result = await service.echo({ consent: true, collectionConsent: true, snapshot: snapshot(DAY, [bookmark()]) });
   assert.deepEqual(calls, ['C1', 'C2']);
   assert.equal(result.draft.facts[0].text, c1.facts[0].text);
   assert.deepEqual(result.draft.externalMatches, []);
@@ -138,7 +138,7 @@ test('C1 sees only local records and C2 runs only for a supported need with auth
   await service.configure(config());
   const source = snapshot(DAY, [bookmark(), bookmark({ id: 'private-bookmark', authorized: false })]);
   const unchanged = structuredClone(source);
-  const result = await service.echo({ consent: true, snapshot: source });
+  const result = await service.echo({ consent: true, collectionConsent: true, snapshot: source });
   assert.deepEqual(calls.map(item => item.stage), ['C1', 'C2']);
   assert.deepEqual(calls[0].snapshot.bookmarks, []);
   assert.deepEqual(calls[1].snapshot.bookmarks.map(item => item.id), ['bookmark-1']);
@@ -315,4 +315,53 @@ test('HTTP API rejects cross-site, forged-host and headerless mutations before d
   assert.equal(status.headers.get('x-content-type-options'), 'nosniff');
   const bad = await fetch(`${base}/api/ai/echo`, { method: 'POST', headers, body: '{}' });
   assert.equal(bad.status, 500); assert.equal((await bad.text()).includes(FAKE_KEY), false);
+});
+
+test('companion asks for concrete details without calling the model when the user has not said anything', async t => {
+  let calls = 0;
+  const { service } = await fixture(t, async () => { calls += 1; return chatResponse({ reply: '模型不应被调用。' }); });
+  await service.configure(config());
+  const result = await service.companion({ consent: true, task: { id: 'task-1', title: '复习', actualMinutes: 25 }, messages: [] });
+  assert.match(result.reply, /具体完成了哪一步/);
+  assert.equal(result.memoryDraft, undefined);
+  assert.equal(calls, 0);
+});
+
+test('companion memory suggestions require exact user quotes and remain compact', async t => {
+  const { service } = await fixture(t, async () => chatResponse({
+    reply: '你已经把一个难点写成了可继续的问题。',
+    memoryDraft: { summary: '用户说自己完成了实验', nextStep: '继续', evidenceQuotes: ['模型臆想的实验'] },
+  }));
+  await service.configure(config());
+  const result = await service.companion({ consent: true, task: { id: 'task-1', title: '阅读', actualMinutes: 10 }, messages: [{ role: 'user', content: '我先写下了一个问题。' }] });
+  assert.equal(result.memoryDraft, undefined);
+  assert.ok(result.reply.length <= 320);
+});
+
+test('text outcome analysis keeps only source-backed quotes and rejects fabricated observations', async t => {
+  const { service } = await fixture(t, async () => chatResponse({
+    summary: '文档里记录了一个待验证问题。',
+    observations: [
+      { text: '文档提出了一个问题。', quote: '待验证问题' },
+      { text: '文档显示已经完成全部实验。', quote: '模型编造的句子' },
+    ],
+    uncertainties: ['无法从文档确认实验是否完成。'],
+    nextStep: '补充验证记录',
+  }));
+  await service.configure(config());
+  const result = await service.analyze({ consent: true, task: { id: 'task-1', title: '实验', actualMinutes: 20 }, file: { name: 'result.txt', mime: 'text/plain', text: '今天记录：待验证问题。' } });
+  assert.deepEqual(result.observations, [{ text: '文档提出了一个问题。', quote: '待验证问题' }]);
+  assert.deepEqual(result.uncertainties, ['无法从文档确认实验是否完成。']);
+});
+
+test('companion forwards cancellation and does not return a fabricated fallback', async t => {
+  const { service } = await fixture(t, async (_url, options) => await new Promise((resolve, reject) => {
+    if (options.signal.aborted) return reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+    options.signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' })), { once: true });
+  }));
+  await service.configure(config());
+  const controller = new AbortController();
+  const pending = service.companion({ consent: true, task: { id: 'task-1', title: '阅读', actualMinutes: 15 }, messages: [{ role: 'user', content: '我读到了第二段。' }] }, controller.signal);
+  controller.abort();
+  await assert.rejects(pending, error => error.status === 504);
 });

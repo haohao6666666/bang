@@ -1,36 +1,46 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID, createHash } from 'node:crypto';
-import { chat, defaults, imageGeneration, imageBytes, validateConfig } from './providers.mjs';
-import { ServiceError, normalizeSnapshot, validateDraft, text, list, dateKey, SYSTEM_PROMPT, DAILY_SCHEMA } from './validation.mjs';
+import { chat, vision, defaults, imageGeneration, imageBytes, validateConfig } from './providers.mjs';
+import { ServiceError, normalizeSnapshot, validateDraft, validateCompanionTask, validateMessages, validateCompanionResponse, validateAnalyzeFile, validateAnalyzeResponse, text, list, dateKey, SYSTEM_PROMPT, DAILY_SCHEMA } from './validation.mjs';
 
 const readJson=async(file,fallback)=>{try{return JSON.parse(await fs.readFile(file,'utf8'));}catch(e){if(e.code==='ENOENT')return fallback;throw new ServiceError('本机服务文件损坏，请先备份并检查 .local 目录。',500);}};
 async function writeJson(file,value){await fs.mkdir(path.dirname(file),{recursive:true});const temp=file+'.'+randomUUID()+'.tmp';await fs.writeFile(temp,JSON.stringify(value,null,2),{mode:0o600});await fs.rename(temp,file);}
 export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=process.env,pollDelay=2000}={}) {
   const configFile=path.join(dataDir,'model-config.json');const locks=new Set();
-  async function config(){const stored=await readJson(configFile,{});const result={};for(const kind of ['text','image']){
+  async function config(){const stored=await readJson(configFile,{});const result={};for(const kind of ['text','vision','image']){
     // A saved blank key stays blank after switching providers; never send an old vendor's key elsewhere.
     if(stored[kind]){result[kind]={...defaults[kind],...stored[kind]};continue;}
     if(kind==='text'&&env.TOKEN_DANCE_API_KEY){
       result.text={provider:'tokendance',baseUrl:env.TOKEN_DANCE_BASE_URL||'https://tokendance.space/gateway/v1',model:env.TOKEN_DANCE_MODEL||'deepseek-v4.1-flash',apiKey:env.TOKEN_DANCE_API_KEY};
       continue;
     }
-    const prefix=kind==='text'?'JIXIANG_TEXT_':'JIXIANG_IMAGE_';const provider=env[prefix+'PROVIDER']||defaults[kind].provider;
+    const prefix=kind==='text'?'JIXIANG_TEXT_':kind==='vision'?'JIXIANG_VISION_':'JIXIANG_IMAGE_';const provider=env[prefix+'PROVIDER']||defaults[kind].provider;
     result[kind]={...defaults[kind],provider,baseUrl:env[prefix+'BASE_URL']||defaults[kind].baseUrl,model:env[prefix+'MODEL']||defaults[kind].model,apiKey:env[prefix+'API_KEY']||(['qwen','wan'].includes(provider)?env.DASHSCOPE_API_KEY||'':'')};
   }return result;}
-  const publicStatus=c=>({text:{provider:c.text.provider,baseUrl:c.text.baseUrl,model:c.text.model,configured:Boolean(c.text.apiKey)},image:{provider:c.image.provider,baseUrl:c.image.baseUrl,model:c.image.model,configured:Boolean(c.image.apiKey)},bookmarks:{zhihu:'import',xiaohongshu:'import'}});
+  const publicStatus=c=>({text:{provider:c.text.provider,baseUrl:c.text.baseUrl,model:c.text.model,configured:Boolean(c.text.apiKey)},vision:{provider:c.vision.provider,baseUrl:c.vision.baseUrl,model:c.vision.model,configured:Boolean(c.vision.apiKey)},image:{provider:c.image.provider,baseUrl:c.image.baseUrl,model:c.image.model,configured:Boolean(c.image.apiKey)},bookmarks:{zhihu:'import',xiaohongshu:'import'}});
   async function exclusive(key,fn){if(locks.has(key))throw new ServiceError('这一项正在处理中，请等待当前请求完成。',409);locks.add(key);try{return await fn();}finally{locks.delete(key);}}
   async function callText(stage,snapshot,c,signal,extra={}){
     return chat(validateConfig(c.text,'text'),[{role:'system',content:SYSTEM_PROMPT},{role:'user',content:JSON.stringify({stage,instructions:stage==='C1'?'只理解本地事实，externalMatches必须为空。需要经验帮助时needsExternal=true；没有必要不要强行建议。':'将授权收藏中有用的部分适配本地事实，说明条件和局限。无相关原文则保留本地回声，不制造引用。',schema:DAILY_SCHEMA,snapshot,...extra})}],{fetcher,signal});
   }
   return {
     status:async()=>publicStatus(await config()),
-    configure:async body=>exclusive('config',async()=>{const old=await config();const next={};for(const kind of ['text','image']){next[kind]=validateConfig(body?.[kind],kind);if(!next[kind].apiKey&&next[kind].provider===old[kind].provider&&next[kind].baseUrl===old[kind].baseUrl)next[kind].apiKey=old[kind].apiKey;}await writeJson(configFile,next);return publicStatus(await config());}),
+    configure:async body=>exclusive('config',async()=>{const old=await config();const next={};for(const kind of ['text','vision','image']){const incoming=body?.[kind]||old[kind]||defaults[kind];next[kind]=validateConfig(incoming,kind);if(!body?.[kind]?.apiKey&&next[kind].provider===old[kind].provider&&next[kind].baseUrl===old[kind].baseUrl)next[kind].apiKey=old[kind].apiKey;}await writeJson(configFile,next);return publicStatus(await config());}),
     echo:async(body,signal)=>exclusive('text',async()=>{
       if(body?.consent!==true)throw new ServiceError('需要确认本次发送范围。',403);
       const snapshot=normalizeSnapshot(body.snapshot), c=await config();const local={...snapshot,bookmarks:[]};
+      // A title plus timer duration is not a description of what happened. Keep
+      // this useful and honest without spending a model call on invented prose.
+      const authoredEvidence=snapshot.evidence.filter(item=>['diary','outcome','note'].includes(item.kind));
+      if(!authoredEvidence.length) {
+        const focus=snapshot.evidence.find(item=>item.kind==='focus');
+        const minutes=focus ? [text(focus.text,200)].filter(Boolean) : [];
+        return {draft:{status:'draft',quiet:false,facts:minutes.slice(0,1).map((item,i)=>({id:`fact-${snapshot.dateKey}-${i}`,text:item,evidenceRefs:[{id:snapshot.evidence.find(e=>e.kind==='focus').id,kind:'focus',dateKey:snapshot.dateKey}]})),signals:[],sparkle:null,externalMatches:[],tomorrowExperiments:[],sourceNote:'目前只有任务名称和投入时长，尚不足以推断具体内容。完成后写下一句成果或笔记，回声才会有依据。'}};
+      }
       const draft=validateDraft(await callText('C1',local,c,signal),local);
-      if(snapshot.bookmarks.length&&(draft.quiet||draft.signals.some(item=>item.needsExternal))){
+      // Collection adaptation is a separate, optional action. A normal daily
+      // reflection is always one short model call, even when bookmarks exist.
+      if(body.collectionConsent===true&&snapshot.bookmarks.length&&(draft.quiet||draft.signals.some(item=>item.needsExternal))){
         // Only explicit authorizations with readable original excerpts can reach C2.
         const context=snapshot.tasks.map(task=>task.title+' '+task.subject).join(' ')+' '+draft.signals.map(item=>item.title+' '+item.detail).join(' ');
         const terms=[...new Set(context.toLowerCase().match(/[\u4e00-\u9fff]{2}|[a-z]{3,}/g)||[])];
@@ -45,6 +55,28 @@ export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=
         }
       }
       return {draft};
+    }),
+    companion:async(body,signal)=>exclusive('text',async()=>{
+      if(body?.consent!==true)throw new ServiceError('需要确认本次对话会发送任务信息。',403);
+      const task=validateCompanionTask(body?.task);const messages=validateMessages(body?.messages);
+      if(!messages.some(item=>item.role==='user')) return {reply:'刚才这段时间，你具体完成了哪一步？可以写下一句，或选择分享一份成果。'};
+      const c=await config();
+      const input={task,messages};
+      const raw=await chat(validateConfig(c.text,'text'),[{role:'system',content:`${SYSTEM_PROMPT}\n你是任务结束后的短对话伙伴。先问一个具体问题帮助用户补充刚才做了什么，再根据用户已经说过的话给一句反馈。不要复述任务名和时长，不要猜测未说出的内容。最多两句、${'180'}字。memoryDraft 只是待确认建议，summary 必须来自用户原话，evidenceQuotes 必须逐字摘录用户消息。`},{role:'user',content:JSON.stringify({stage:'COMPANION',instruction:'只使用任务元数据和对话原文，回复简短自然，不输出 Markdown。',input})}],{fetcher,signal});
+      return validateCompanionResponse(raw,task,messages);
+    }),
+    analyze:async(body,signal)=>exclusive('text',async()=>{
+      if(body?.consent!==true)throw new ServiceError('需要确认本次成果会发送给模型。',403);
+      const task=validateCompanionTask({...body?.task,actualMinutes:Number(body?.task?.actualMinutes)||0});const file=validateAnalyzeFile(body?.file);const c=await config();
+      const schema={summary:'可核对的简短摘要',observations:[{text:'直接看到或读到的内容',quote:'文本中的逐字片段'}],uncertainties:['无法从成果确认的部分'],nextStep:'可选的一步'};
+      let raw;
+      if(file.text) {
+        raw=await chat(validateConfig(c.text,'text'),[{role:'system',content:`${SYSTEM_PROMPT}\n你是成果文档观察助手。只引用文档原文可核对的内容，不把任务标题或时长当成成果。每条 observation 必须带 quote，quote 必须逐字来自输入文本。若内容不足，写 uncertainties。输出 JSON。`},{role:'user',content:JSON.stringify({stage:'ANALYZE_TEXT',task,file:{name:file.name,mime:file.mime,text:file.text},schema})}],{fetcher,signal});
+      } else {
+        if(!/^data:image\//.test(file.dataUrl))throw new ServiceError('PDF 或其他文档请先提供可读取的文本内容。');
+        raw=await vision(validateConfig(c.vision,'vision'),`任务标题仅用于上下文，不代表成果事实：${task.title}。只描述图片中直接可见或可读的内容。输出 JSON，summary、observations、uncertainties、nextStep；不要猜测图片外的信息。`,file.dataUrl,{fetcher,signal});
+      }
+      return validateAnalyzeResponse(raw,file);
     }),
     weekly:async(body,signal)=>exclusive('text',async()=>{
       if(body?.consent!==true)throw new ServiceError('需要确认本次发送范围。',403);

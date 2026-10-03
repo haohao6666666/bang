@@ -75,9 +75,9 @@ export function DailyStampStudio({ snapshot, stamp, onStamp, onOpenSettings }: D
   };
   const openSettings = () => { keyboard.hide(); onOpenSettings(); };
 
-  return <section className="daily-stamp-studio paper-card" data-testid="daily-stamp-studio" aria-label="AI 纪念印章">
-    <header className="ai-panel-heading"><div><span className="eyebrow">留一枚今天的模样</span><h2>今日纪念印章</h2><p>{snapshot.dateKey} · 由真实经历启发</p></div><ReferenceArt kind="books" /></header>
-    <p className="ai-soft-note">这是一幅单独收藏的 AI 插画，不增加时间印迹数量，也不改变已获得的成长印章。</p>
+  return <section className="daily-stamp-studio paper-card" data-testid="daily-stamp-studio" aria-label="AI 纪念画">
+    <header className="ai-panel-heading"><div><span className="eyebrow">收藏里的可选纪念画</span><h2>画一枚今天的模样</h2><p>{snapshot.dateKey} · 只引用这一天的投入与已保存内容</p></div><ReferenceArt kind="books" /></header>
+    <p className="ai-soft-note">它不会改变时间印迹或获得规则；只在你主动确认后生成。</p>
     {currentStamp ? <div className="ai-stamp-kept" data-testid="generated-day-stamp">
       {imageSource && !imageFailed ? <img src={imageSource} alt={`${currentStamp.title}纪念印章`} decoding="async" draggable={false} onError={() => setImageFailed(true)} /> : <div className="ai-stamp-image-missing"><ReferenceArt kind="resting" /><p>这枚印章的图片暂时无法加载，文字和来源仍然保留。</p></div>}
       <span className="ai-kept-label"><CheckIcon />这一天，已经收好</span><h3>{currentStamp.title}</h3><p>{currentStamp.meaning}</p>

@@ -289,8 +289,8 @@ test("saving a historical diary returns to that date and keeps its original evid
 
 test("route, focus, outcome and diary remain one persistent workflow", async ({ page }) => {
   await seedApp(page);
-  const flow = page.getByRole("navigation", { name: "今天的流程" });
-  await expect(flow.getByRole("button")).toHaveCount(4);
+  await expect(page.getByRole("navigation", { name: "今天的流程" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "主要导航" }).getByRole("button")).toHaveCount(4);
   await page.getByRole("button", { name: /添加一个想做的事/ }).click();
   await page.getByLabel("添加今日任务").fill("整理一页研究笔记");
   await page.getByLabel("填写成果要求").fill("留下一张问题清单");

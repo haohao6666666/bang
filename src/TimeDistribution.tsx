@@ -14,7 +14,7 @@ export function TimeDistribution({ groups }: { groups: readonly StampGroup[] }) 
 
   return <section className="activity-distribution" aria-labelledby={titleId} data-testid="time-distribution" data-total-ms={totalMs}>
     <header className="activity-distribution-header">
-      <div><span className="activity-distribution-kicker">时间的去处</span><h3 id={titleId}>时间分布</h3></div>
+      <div><span className="activity-distribution-kicker">投入事实</span><h3 id={titleId}>时间分布</h3></div>
       <span className="activity-distribution-count">{activities.length ? `${activities.length} 个投入方向` : "留白，也很好"}</span>
     </header>
     <div className={`activity-distribution-overview ${selected ? "has-selection" : ""}`}>
@@ -35,7 +35,7 @@ export function TimeDistribution({ groups }: { groups: readonly StampGroup[] }) 
       </div>
       <div className="activity-distribution-story" aria-live="polite" aria-atomic="true">
         {selected ? <><span className="activity-story-dot" style={{ background: selected.color }} /><strong>{selected.label}</strong><p>{formatActivityDuration(selected.actualMs)}<br />占这段时间的 {formatActivityPercentage(selected.percentage)}</p><button type="button" onClick={() => setSelectedKey(null)}>回看全部投入 <span aria-hidden="true">↗</span></button></>
-          : <><span className="activity-story-sprout" aria-hidden="true">✦</span><strong>{totalMs > 0 ? <>每一份投入，<br />都有自己的颜色。</> : <>新的一页，<br />慢慢开始。</>}</strong><p>{totalMs > 0 ? "轻点下方方向，回看时间的去处。" : "完成一段真实投入后，时间会在这里留下颜色。"}</p></>}
+          : <><span className="activity-story-sprout" aria-hidden="true">✦</span><strong>{totalMs > 0 ? <>按方向<br />回看投入。</> : <>还没有<br />投入记录。</>}</strong><p>{totalMs > 0 ? "点击下方标签查看具体时长。" : "开始一次专注后，这里会出现记录。"}</p></>}
       </div>
     </div>
     {activities.length > 0 && <div className="activity-distribution-legend" role="group" aria-label="按投入方向查看时间">

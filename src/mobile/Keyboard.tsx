@@ -34,7 +34,7 @@ type KeyboardInputProps = InputHTMLAttributes<HTMLInputElement> & {
 
 const KeyboardContext = createContext<KeyboardContextValue | null>(null);
 
-export function KeyboardProvider({ children }: PropsWithChildren) {
+export function KeyboardProvider({ children, native = false }: PropsWithChildren<{ native?: boolean }>) {
   const { device } = useMobileDevice();
   const [visible, setVisible] = useState(false);
   const [dragOffset, setRawDragOffset] = useState(0);
@@ -60,7 +60,10 @@ export function KeyboardProvider({ children }: PropsWithChildren) {
         setRawDragOffset(0);
         setDragging(false);
         setFocusedElement(element ?? null);
-        setVisible(true);
+        // The installed phone app uses the operating system keyboard. Keep
+        // the focus bookkeeping used by sheets/navigation, but do not mount
+        // the preview keyboard asset over the browser's native IME.
+        if (!native) setVisible(true);
       },
       hide: () => {
         focusedElement?.blur();
@@ -69,7 +72,7 @@ export function KeyboardProvider({ children }: PropsWithChildren) {
         setVisible(false);
       },
     }),
-    [dragOffset, focusedElement, fullHeight, isDragging, visible],
+    [dragOffset, focusedElement, fullHeight, isDragging, native, visible],
   );
 
   return <KeyboardContext.Provider value={value}>{children}</KeyboardContext.Provider>;

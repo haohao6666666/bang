@@ -51,7 +51,7 @@ test("first entrance finishes automatically without altering evidence or device 
   // Flush the next frame after React removes inert and commits the revealed screen.
   await page.clock.runFor(50);
   await expect(page.locator(".app-experience")).not.toHaveAttribute("inert", "");
-  await expect(page.getByRole("button", { name: "打开迹向入口", exact: true })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "今天，先做这一件。", exact: true })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "主要导航" })).toBeVisible();
   expect(await readState(page)).toEqual(before);
   expect(await page.locator(".status-bar").boundingBox()).toEqual(statusBefore);
@@ -109,7 +109,7 @@ test("saved reduced motion bypasses entrance and replay leaves the app usable", 
   await expect(page.getByTestId("welcome-transition")).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: "主要导航" })).toBeVisible();
   const before = await readState(page);
-  await page.getByRole("button", { name: "设置", exact: true }).click();
+  await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "我的", exact: true }).click();
   await page.clock.runFor(400);
   await page.getByRole("button", { name: "重看入场动画", exact: true }).click();
   await expect(page.getByTestId("welcome-transition")).toHaveCount(0);
@@ -156,7 +156,7 @@ test("replay stays anchored in a small scaled desktop preview", async ({ page })
   await page.clock.runFor(400);
   const screen = page.getByTestId("device-screen");
   const statusBefore = await page.locator(".status-bar").boundingBox();
-  await page.getByRole("button", { name: "设置", exact: true }).click();
+  await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "我的", exact: true }).click();
   await page.clock.runFor(500);
   await page.getByRole("button", { name: "重看入场动画", exact: true }).click();
   await page.clock.runFor(1_200);

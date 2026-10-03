@@ -88,5 +88,5 @@ test("donut and legend fit iPhone and Pixel and an empty month does not invent s
   await page.getByRole("button", { name: "上个月", exact: true }).click();
   await expect(ring).toHaveAttribute("data-total-ms", "0");
   await expect(ring.locator(".activity-ring-segment")).toHaveCount(0);
-  await expect(ring).toContainText("完成一段真实投入后");
+  await expect(ring).toContainText("还没有");
 });

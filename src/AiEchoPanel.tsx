@@ -124,7 +124,7 @@ export function AiEchoPanel({ snapshot, draft, onDraft, onAcceptExperiment, acce
   const visibleDraft = draft && draft.status !== "hidden";
 
   return <section className="ai-echo-panel paper-card" data-testid="ai-echo-panel" aria-label="AI 每日回声">
-    <header className="ai-panel-heading"><div><span className="eyebrow">让经历，慢慢变成理解</span><h2>和今天聊一聊</h2><p>AI 帮你整理线索，最后由你确认。</p></div><ReferenceArt kind="thinking" /></header>
+    <header className="ai-panel-heading"><div><span className="eyebrow">可选的整理</span><h2>用 AI 回看这一天</h2><p>只发送你勾选的内容，结果先由你确认。</p></div><ReferenceArt kind="thinking" /></header>
     <div className="ai-request-options">
       <label><input type="checkbox" checked={includeDiary} disabled={busy} onChange={event => { setConsent(false); onIncludeDiaryChange(event.target.checked); }} /><span>这次包含已保存的日记<small>不勾选时，日记内容不会发送。</small></span></label>
       <label><input type="checkbox" checked={useBookmarks} disabled={busy} onChange={event => { setConsent(false); onUseBookmarksChange(event.target.checked); }} /><span>参考我授权的收藏<small>只使用在本机导入并授权的摘录。</small></span></label>
@@ -140,7 +140,7 @@ export function AiEchoPanel({ snapshot, draft, onDraft, onAcceptExperiment, acce
     {visibleDraft && <div className="ai-draft" data-testid="ai-daily-draft">
       {draft.sourceNote && <p className="ai-soft-note" role="status">{draft.sourceNote}</p>}
       <div className="ai-draft-status"><span>{draft.status === "confirmed" ? <><CheckIcon />你已确认</> : "AI 回声草稿 · 等你确认"}</span><small>{snapshot.dateKey}</small></div>
-      {draft.quiet && <p className="ai-quiet-message">今天暂时没有足够的线索，也可以留下一段安静的记录。你的每一天不需要被评分。</p>}
+      {draft.quiet && <p className="ai-quiet-message">今天先收好这页。</p>}
       {draft.facts.length > 0 && <section className="ai-draft-section"><h3>今天真实发生的事</h3>{draft.facts.map((fact, index) => <article className="ai-fact" key={fact.id}>{editing ? <KeyboardTextarea aria-label={`修改事实 ${index + 1}`} value={factEdits[index] ?? ""} maxLength={1600} onChange={event => setFactEdits(values => values.map((value, itemIndex) => itemIndex === index ? event.target.value : value))} /> : <p>{fact.text}</p>}<EvidenceList refs={fact.evidenceRefs} snapshot={allowedSnapshot} /></article>)}</section>}
       {draft.sparkle && <section className="ai-sparkle"><span>值得留住的一点光</span>{editing ? <KeyboardTextarea aria-label="修改闪耀瞬间" value={sparkleEdit} maxLength={1600} onChange={event => setSparkleEdit(event.target.value)} /> : <p>{draft.sparkle.text}</p>}<EvidenceList refs={draft.sparkle.evidenceRefs} snapshot={allowedSnapshot} /></section>}
       {draft.signals.length > 0 && <section className="ai-draft-section"><h3>可以一起想想</h3>{draft.signals.map(signal => <article className="ai-signal" key={signal.id}><span>{signalLabels[signal.type] ?? "一条待确认的线索"}</span><h4>{signal.title}</h4><p>{signal.detail}</p><EvidenceList refs={signal.evidenceRefs} snapshot={allowedSnapshot} /></article>)}</section>}

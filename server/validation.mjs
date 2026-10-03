@@ -1,6 +1,75 @@
 export class ServiceError extends Error { constructor(message, status = 400) { super(message); this.status = status; } }
 export const text = (value, max = 2000) => typeof value === 'string' ? value.trim().slice(0, max) : '';
 export const list = (value, limit = 40) => Array.isArray(value) ? value.slice(0, limit) : [];
+
+// The companion and outcome flows deliberately accept a much smaller contract than a
+// daily reflection.  Keeping these checks here means that an untrusted model response
+// cannot turn a short user conversation into a stored fact by itself.
+export function validateCompanionTask(raw) {
+  if (!raw || typeof raw !== 'object') throw new ServiceError('缺少本次任务记录。');
+  const id = text(raw.id, 180), title = text(raw.title, 200);
+  const actualMinutes = Number(raw.actualMinutes);
+  if (!id || !title || !Number.isFinite(actualMinutes) || actualMinutes < 0 || actualMinutes > 100000) throw new ServiceError('任务记录不完整。');
+  return { id, title, actualMinutes: Math.round(actualMinutes) };
+}
+export function validateMessages(raw) {
+  return list(raw, 12).flatMap(item => {
+    if (!item || !['user', 'assistant'].includes(item.role)) return [];
+    const content = text(item.content, 1200);
+    return content ? [{ role: item.role, content }] : [];
+  });
+}
+export function validateCompanionResponse(raw, task, messages) {
+  const rawReply = text(raw?.reply, 320);
+  if (!rawReply) throw new ServiceError('陪伴回应为空，未保存。', 502);
+  const reply = rawReply.split(/(?<=[。！？!?])\s*/).filter(Boolean).slice(0, 2).join('').slice(0, 240);
+  const userText = messages.filter(item => item.role === 'user').map(item => item.content).join('\n');
+  let memoryDraft;
+  if (raw?.memoryDraft && typeof raw.memoryDraft === 'object') {
+    const summary = text(raw.memoryDraft.summary, 400);
+    const nextStep = text(raw.memoryDraft.nextStep, 300) || undefined;
+    const evidenceQuotes = list(raw.memoryDraft.evidenceQuotes, 4).map(item => text(item, 240)).filter(Boolean);
+    // A memory suggestion is only useful when it points back to the user's own words.
+    // Model summaries, task titles and assistant text are not evidence.
+    if (summary && evidenceQuotes.length && evidenceQuotes.every(quote => userText.includes(quote))) {
+      memoryDraft = { summary, ...(nextStep ? { nextStep } : {}), evidenceQuotes };
+    }
+  }
+  return { reply, ...(memoryDraft ? { memoryDraft } : {}) };
+}
+export function validateAnalyzeFile(raw) {
+  if (!raw || typeof raw !== 'object') throw new ServiceError('缺少成果文件。');
+  const name = text(raw.name, 180);
+  const mime = text(raw.mime, 120).toLowerCase();
+  const sourceText = text(raw.text, 24000);
+  const dataUrl = text(raw.dataUrl, 9_000_000);
+  if (!name || !mime || (!sourceText && !dataUrl)) throw new ServiceError('成果文件没有可读取的内容。');
+  if (sourceText && sourceText.length < 2) throw new ServiceError('成果文本太短，无法可靠识别。');
+  if (dataUrl && !/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) throw new ServiceError('成果图片格式不受支持；PDF 请先提供可读取的文本内容。');
+  if (dataUrl && !mime.startsWith('image/')) throw new ServiceError('图片成果的 MIME 类型不匹配。');
+  if (dataUrl && dataUrl.length > 8_400_000) throw new ServiceError('成果文件过大，请选择较小的图片或文档。', 413);
+  return { name, mime, ...(sourceText ? { text: sourceText } : {}), ...(dataUrl ? { dataUrl } : {}) };
+}
+export function validateAnalyzeResponse(raw, file) {
+  const summary = text(raw?.summary, 700);
+  if (!summary) throw new ServiceError('成果识别没有返回可用摘要。', 502);
+  const sourceText = file.text || '';
+  const observations = list(raw?.observations, 8).flatMap(item => {
+    const observation = text(item?.text, 400);
+    const quote = text(item?.quote, 500) || undefined;
+    if (!observation) return [];
+    if (quote && sourceText && !sourceText.includes(quote)) return [];
+    if (quote && !sourceText) return [{ text: observation }];
+    // Text evidence must be quoted. For images, the model may describe visible
+    // elements, but this remains explicitly an observation rather than a fact.
+    if (sourceText && !quote) return [];
+    return [{ text: observation, ...(quote ? { quote } : {}) }];
+  });
+  const uncertainties = list(raw?.uncertainties, 6).map(item => text(item, 260)).filter(Boolean);
+  const nextStep = text(raw?.nextStep, 300) || undefined;
+  if (!observations.length && !uncertainties.length) throw new ServiceError('成果识别缺少可核对的观察，未保存。', 502);
+  return { summary, observations, uncertainties, ...(nextStep ? { nextStep } : {}) };
+}
 export function dateKey(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value + 'T12:00:00Z')) || new Date(value + 'T12:00:00Z').toISOString().slice(0,10) !== value) throw new ServiceError('日期无效。');
   return value;

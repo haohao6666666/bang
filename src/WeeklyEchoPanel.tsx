@@ -27,10 +27,10 @@ export function WeeklyEchoPanel({ snapshots, rangeStart, rangeEnd, draft, onDraf
     } catch (reason) { if (!request.signal.aborted) setError((reason as Error).message); }
     finally { if (controller.current === request) { controller.current = null; setBusy(false); } }
   }
-  return <details className="weekly-ai-panel paper-card"><summary>每周回声 <span>{rangeStart.slice(5)} — {rangeEnd.slice(5)}</span></summary>
-    <p className="ai-soft-note">从连续七天的片段里，看看正在发生的变化。至少三个日记日期，每条观察都要有两个日期的依据。</p>
+  return <details className="weekly-ai-panel paper-card"><summary>回看这一周 <span>{rangeStart.slice(5)} — {rangeEnd.slice(5)}</span></summary>
+    <p className="ai-soft-note">只有至少三天日记，且每条观察都能回到两个日期时，才会生成周回声。</p>
     <details className="ai-request-preview"><summary>本次可发送 {snapshots.length} 天的记录 · {days.size} 个日记日期</summary><div className="ai-preview-records">{snapshots.map(day => <article key={day.dateKey}><span>{day.dateKey}</span>{day.evidence.map(item => <p key={item.id}>{item.text}</p>)}</article>)}</div></details>
-    {days.size < 3 ? <p className="ai-soft-note">本周期暂未满足条件。可在每日回声中开启日记参与分析；没有写日记的日子也没关系。</p> : <label className="ai-consent"><input type="checkbox" disabled={busy} checked={consent} onChange={event => setConsent(event.target.checked)} />允许将上面这七天内的记录发送给已配置的文本模型，生成待确认的周回声。</label>}
+    {days.size < 3 ? <p className="ai-soft-note">把日记留到三天后，再回来看看。</p> : <label className="ai-consent"><input type="checkbox" disabled={busy} checked={consent} onChange={event => setConsent(event.target.checked)} />允许将上面这七天内的记录发送给已配置的文本模型，生成待确认的周回声。</label>}
     <div className="ai-action-row"><button className="outline-button" disabled={!consent || busy || days.size < 3} onClick={generate}>{busy ? "正在梳理这一周…" : "生成周回声"}</button>{busy && <button className="text-button" onClick={() => { controller.current?.abort(); setBusy(false); }}>停止等待</button>}<button className="text-button" onClick={onOpenSettings}>模型设置</button></div>
     {error && <p className="ai-error" role="alert">{error}</p>}
     {draft?.status === "hidden" ? <div className="ai-hidden-draft">这份周回声已隐藏。<button className="text-button" onClick={() => onDraft({ ...draft, status: "draft" })}>重新查看周回声</button></div> : draft && <div className="ai-draft">

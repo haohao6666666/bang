@@ -90,3 +90,4 @@ Entrance is a short, skippable welcome inside the app layer only, shown once per
 
 ## AI flow and collection integration (2026-10-03)
 Follow the user's supplied flow: local facts -> explicit per-request consent -> grounded daily/weekly drafts -> optional authorized collection adaptation -> user confirmation -> separately selected future experiments. Model output must never change focus evidence or deterministic stamp counts. Keep credentials on the local Node service and out of client storage, exports and deliverable archives. Zhihu/Xiaohongshu currently use explicitly labeled link/excerpt or JSON import; do not claim account sync or web search without a verified integration. Daily AI art is a separate dated commemorative illustration with a previewable drawing brief, not a replacement for earned evidence. Configuration existence is not proof of a successful provider call.
+
