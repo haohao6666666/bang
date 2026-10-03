@@ -9,7 +9,8 @@ export type AiSnapshot = {
   evidence: Array<EvidenceRef & { text: string }>;
   bookmarks: SavedBookmark[];
 };
-export type GeneratedDayStamp = { id: string; dateKey: string; imageUrl: string; title: string; meaning: string; prompt?: string; createdAt: number; evidenceIds: string[]; model?: string; sourceTaskId?: string };
+export type GeneratedDayStamp = { id: string; dateKey: string; imageUrl: string; title: string; meaning: string; prompt?: string; createdAt: number; evidenceIds: string[]; model?: string; sourceTaskId?: string; hidden?: boolean; edited?: boolean };
+export type OrganizedReview = { id: string; taskId: string; dateKey: string; text: string; evidenceIds: string[]; references: { title: string; url: string; quote: string }[]; source: "companion"; createdAt: number; hidden?: boolean; edited?: boolean };
 export type ModelConfiguration = { provider: string; baseUrl: string; model: string; apiKey?: string };
 export type AiServiceStatus = {
   text: Omit<ModelConfiguration,"apiKey"> & { configured: boolean };
@@ -27,13 +28,15 @@ async function request<T>(path: string, body?: unknown, signal?: AbortSignal): P
   return result as T;
 }
 export const aiClient = {
+  backgroundRequest: (path: string, body: unknown) => request<Record<string, unknown>>(path, body),
+  backgroundResults: () => request<{ reviews: OrganizedReview[] }>("background-results"),
   status: () => request<AiServiceStatus>("status"),
   configure: (config: { text: ModelConfiguration; image: ModelConfiguration }) => request<AiServiceStatus>("config", config),
   daily: (snapshot: AiSnapshot, signal?: AbortSignal) => request<{ draft: DailyEchoDraft }>("echo", { snapshot, consent: true }, signal),
   weekly: (snapshots: AiSnapshot[], rangeStart: string, rangeEnd: string, signal?: AbortSignal) => request<{ draft: WeeklyEchoDraft }>("weekly", { snapshots, rangeStart, rangeEnd, consent: true }, signal),
   stamp: (input: { dateKey: string; brief: string; evidenceIds: string[]; snapshot: AiSnapshot }, signal?: AbortSignal) => request<{ stamp: GeneratedDayStamp }>("stamp", { ...input, consent: true }, signal),
   stamps: () => request<{ stamps: GeneratedDayStamp[] }>("stamps"),
-  memory: (input: { eventKey: string; taskId?: string; dateKey: string; userQuotes?: string[]; nextStep?: string; sourceIds?: string[]; forget?: boolean; allDates?: boolean }) => request<{ stored: boolean; duplicate?: boolean }>("memory", input),
+  memory: (input: { eventKey?: string; taskId?: string; dateKey?: string; userQuotes?: string[]; nextStep?: string; sourceIds?: string[]; forget?: boolean; allDates?: boolean }) => request<{ stored: boolean; duplicate?: boolean }>("memory", input),
   memoryStatus: () => request<{ enabled: boolean; count: number }>("memory/status"),
   clearMemory: () => request<{ cleared: boolean }>("memory-clear", {}),
   autoStamp: (input: { dateKey: string; brief: string; evidenceIds: string[]; snapshot: AiSnapshot; eventKey: string }, signal?: AbortSignal) => request<{ stamp: GeneratedDayStamp }>("stamp", { ...input, automatic: true }, signal),

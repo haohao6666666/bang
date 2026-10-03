@@ -1,5 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { createMemoryStore } from './memory.mjs';
+import { createOrganizer } from './organizer.mjs';
 import { randomUUID, createHash } from 'node:crypto';
 import { chat, vision, defaults, imageGeneration, imageBytes, validateConfig } from './providers.mjs';
 import { ServiceError, normalizeSnapshot, validateDraft, validateCompanionTask, validateMessages, validateCompanionResponse, validateAnalyzeFile, validateAnalyzeResponse, text, list, dateKey, SYSTEM_PROMPT, DAILY_SCHEMA } from './validation.mjs';
@@ -21,35 +23,28 @@ export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=
   // The status contract keeps connection metadata for local diagnostics. The UI intentionally does not render it.
   const publicStatus=c=>({text:{provider:c.text.provider,baseUrl:c.text.baseUrl,model:c.text.model,configured:Boolean(c.text.apiKey)},vision:{provider:c.vision.provider,baseUrl:c.vision.baseUrl,model:c.vision.model,configured:Boolean(c.vision.apiKey)},image:{provider:c.image.provider,baseUrl:c.image.baseUrl,model:c.image.model,configured:Boolean(c.image.apiKey)},bookmarks:{zhihu:'import',xiaohongshu:'import'}});
   async function exclusive(key,fn){if(locks.has(key))throw new ServiceError('这一项正在处理中，请等待当前请求完成。',409);locks.add(key);try{return await fn();}finally{locks.delete(key);}}
-  const memoryDir=path.join(dataDir,'memory');
-  const safeMemoryPart=value=>String(value||'local').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,120)||'local';
-  async function memoryFiles(){const files=await fs.readdir(memoryDir,{withFileTypes:true}).catch(()=>[]);const result=[];for(const entry of files){if(!entry.isDirectory())continue;const nested=await fs.readdir(path.join(memoryDir,entry.name)).catch(()=>[]);result.push(...nested.filter(name=>/^\d{4}-\d{2}-\d{2}\.json$/.test(name)).map(name=>path.join(memoryDir,entry.name,name)));}return result;}
-  async function memoryStatus(){return {enabled:true,count:(await memoryFiles()).length};}
-  async function updateMemory(body){
-    const date=dateKey(body?.dateKey), taskId=text(body?.taskId,180)||'unlinked', eventKey=text(body?.eventKey,220);
-    if(!eventKey)throw new ServiceError('记忆事件缺少标识。');
-    const quotes=list(body?.userQuotes,8).map(item=>text(item,500)).filter(Boolean);
-    const nextStep=text(body?.nextStep,500);
-    if(!quotes.length&&!nextStep)return {stored:false};
-    const file=path.join(memoryDir,safeMemoryPart(taskId),`${date}.json`);const current=await readJson(file,{version:1,taskId,dateKey:date,quotes:[],nextSteps:[],sources:[],inferences:[],events:[]});
-    if(current.events?.some(item=>item.eventKey===eventKey))return {stored:false,duplicate:true};
-    const quoteIds=quotes.map((_,index)=>`${eventKey}:quote:${index}`);
-    const nextStepId=nextStep?`${eventKey}:next`:undefined;
-    const sourceIds=list(body?.sourceIds,12).map(item=>text(item,180)).filter(Boolean);
-    const event={eventKey,createdAt:Date.now(),quoteIds,nextStepId,sourceIds};
-    const next={version:1,taskId,dateKey:date,quotes:[...(Array.isArray(current.quotes)?current.quotes:[]),...quotes.map((quote,index)=>({id:quoteIds[index],text:quote,source:'user'}))].slice(-80),nextSteps:nextStep?[...(Array.isArray(current.nextSteps)?current.nextSteps:[]),{id:nextStepId,text:nextStep,source:'user',createdAt:Date.now()}].slice(-40):current.nextSteps||[],sources:[...(Array.isArray(current.sources)?current.sources:[]),...sourceIds].slice(-120),inferences:Array.isArray(current.inferences)?current.inferences:[],events:[...(Array.isArray(current.events)?current.events:[]),event].slice(-120)};
-    await writeJson(file,next);return {stored:true};
-  }
-  async function clearMemory(){await fs.rm(memoryDir,{recursive:true,force:true});return {cleared:true};}
-  async function forgetMemory(body){const task=text(body?.taskId,180);const day=body?.allDates===true?'':body?.dateKey?dateKey(body.dateKey):'';const eventKey=text(body?.eventKey,220);let removed=0;for(const file of await memoryFiles()){const doc=await readJson(file,null);if(!doc)continue;if(task&&doc.taskId!==task)continue;if(day&&doc.dateKey!==day)continue;if(eventKey&&body?.allDates!==true){const events=Array.isArray(doc.events)?doc.events:[];const target=events.find(item=>item.eventKey===eventKey);if(!target)continue;const quoteIds=new Set(Array.isArray(target.quoteIds)?target.quoteIds:[]);const nextStepId=target.nextStepId;const sourceIds=new Set(Array.isArray(target.sourceIds)?target.sourceIds:[]);const remainingEvents=events.filter(item=>item.eventKey!==eventKey);const remainingQuotes=(Array.isArray(doc.quotes)?doc.quotes:[]).filter(item=>!quoteIds.has(item.id));const remainingNextSteps=(Array.isArray(doc.nextSteps)?doc.nextSteps:[]).filter(item=>nextStepId?item.id!==nextStepId:remainingEvents.length>0);const remainingSources=(Array.isArray(doc.sources)?doc.sources:[]).filter(item=>!sourceIds.has(item));if(!remainingEvents.length&&!remainingQuotes.length&&!remainingNextSteps.length&&!remainingSources.length){await fs.unlink(file).catch(()=>{});}else{await writeJson(file,{...doc,quotes:remainingQuotes,nextSteps:remainingNextSteps,sources:remainingSources,events:remainingEvents});}removed++;}else{await fs.unlink(file).catch(()=>{});removed++;}}return {cleared:removed>0,removed};}
+  const memoryStore = createMemoryStore(dataDir);
+  let organizer;
   async function callText(stage,snapshot,c,signal,extra={}){
     return chat(validateConfig(c.text,'text'),[{role:'system',content:SYSTEM_PROMPT},{role:'user',content:JSON.stringify({stage,instructions:stage==='C1'?'只理解本地事实，externalMatches必须为空。需要经验帮助时needsExternal=true；没有必要不要强行建议。':'将授权收藏中有用的部分适配本地事实，说明条件和局限。无相关原文则保留本地回声，不制造引用。',schema:DAILY_SCHEMA,snapshot,...extra})}],{fetcher,signal});
   }
-  return {
+  const service = {
     status:async()=>publicStatus(await config()),
-    memoryStatus,
-    memory:async body=>body?.forget===true?forgetMemory(body):updateMemory(body),
-    'memory-clear':async()=>clearMemory(),
+    memoryStatus: memoryStore.status,
+    memory: async body => body?.forget ? memoryStore.forget(body) : memoryStore.update(body),
+    'memory-clear': async () => { await memoryStore.clear(); await organizer.purge({ keepStamps: true }); return { cleared: true }; },
+    'memory-settings': async body => { const result = await memoryStore.setEnabled(body?.enabled); if (result.enabled) organizer.resume(); else await organizer.pause(); return result; },
+    organize: body => organizer.enqueue(body),
+    'background-results': () => organizer.results(),
+    'background-edit': body => organizer.edit(body),
+    'background-delete': async body => { await memoryStore.forget(body); return organizer.purge(body); },
+    'stamp-edit': async body => {
+      const day = dateKey(body.dateKey), file = path.join(dataDir, 'stamps', `${day}.json`), current = await readJson(file, null);
+      if (!current) return { saved: false };
+      if (body.remove) { await organizer.hideStamp(day); await fs.unlink(file); if (/^\/api\/ai\/stamp-assets\/[\w.-]+$/.test(current.imageUrl || '')) await fs.unlink(path.join(dataDir, 'stamps', current.imageUrl.split('/').at(-1))).catch(() => {}); }
+      else await writeJson(file, { ...current, ...(typeof body.hidden === 'boolean' ? { hidden: body.hidden } : {}), ...(text(body.meaning, 220) ? { meaning: text(body.meaning, 220), edited: true } : {}) });
+      return { saved: true };
+    },
     configure:async body=>exclusive('config',async()=>{const old=await config();const next={};for(const kind of ['text','vision','image']){const incoming=body?.[kind]||old[kind]||defaults[kind];next[kind]=validateConfig(incoming,kind);if(!body?.[kind]?.apiKey&&next[kind].provider===old[kind].provider&&next[kind].baseUrl===old[kind].baseUrl)next[kind].apiKey=old[kind].apiKey;}await writeJson(configFile,next);return publicStatus(await config());}),
     echo:async(body,signal)=>exclusive('text',async()=>{
       if(body?.consent!==true)throw new ServiceError('需要确认本次发送范围。',403);
@@ -85,9 +80,19 @@ export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=
       if(body?.consent!==true)throw new ServiceError('需要确认本次对话会发送任务信息。',403);
       const task=validateCompanionTask(body?.task);const messages=validateMessages(body?.messages);
       if(!messages.some(item=>item.role==='user')) return {reply:'刚才这段时间，你具体完成了哪一步？可以写下一句，或选择分享一份成果。'};
+      const last = messages.filter(item => item.role === 'user').at(-1)?.content || '';
+      if (/忘掉这件事|忘记这件事|记错了/.test(last)) {
+        await memoryStore.forget({ taskId: task.id, allDates: true });
+        await organizer.purge({ taskId: task.id });
+        const correction = /记错了[，,。:：\s]*(.+)/.exec(last)?.[1];
+        if (correction && (await memoryStore.settings()).enabled) await memoryStore.update({ eventKey: `correction:${Date.now()}`, taskId: task.id, dateKey: body.dateKey || new Date().toISOString().slice(0,10), userQuotes: [correction] });
+        return { reply: correction ? '好，已经按你刚说的改好了。' : /记错了/.test(last) ? '我先把这件事的旧记忆清掉。你愿意的话，告诉我哪里记错了。' : '好，这件事的后台记忆已经清掉了。', forgotten: true };
+      }
       const c=await config();
-      const input={task,messages};
-      const raw=await chat(validateConfig(c.text,'text'),[{role:'system',content:`${SYSTEM_PROMPT}\n你是任务结束后的短对话伙伴。先问一个具体问题帮助用户补充刚才做了什么，再根据用户已经说过的话给一句反馈。不要复述任务名和时长，不要猜测未说出的内容。最多两句、${'180'}字。memoryDraft 只是待确认建议，summary 必须来自用户原话，evidenceQuotes 必须逐字摘录用户消息。`},{role:'user',content:JSON.stringify({stage:'COMPANION',instruction:'只使用任务元数据和对话原文，回复简短自然，不输出 Markdown。',input})}],{fetcher,signal});
+      const memory = body.remember !== false && (await memoryStore.settings()).enabled ? await memoryStore.context(task.id) : [];
+      await organizer.reserve('text');
+      const input={task:{id:task.id,title:task.title},messages,memory};
+      const raw=await chat(validateConfig(c.text,'text'),[{role:'system',content:`${SYSTEM_PROMPT}\n你是记得用户的小狗伙伴，不是答疑导师或能力评估工具。结合这项任务和用户原话自然接话。默认一两句，不每次追问，不泛泛夸奖，不强行给建议。用户没说的内容不要猜。历史记忆中的 userQuotes 是用户原话，其他不是用户原话。输出 JSON {reply:简短回应}，不输出内部文档。`},{role:'user',content:JSON.stringify({input})}],{fetcher,signal});
       return validateCompanionResponse(raw,task,messages);
     }),
     analyze:async(body,signal)=>exclusive('text',async()=>{
@@ -127,6 +132,7 @@ export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=
         const eventKey=text(body.eventKey,220)||evidenceIds.slice().sort().join('|');
         const stampFile=path.join(dataDir,'stamps',`${day}.json`),jobFile=path.join(dataDir,'stamps',`${day}.job.json`);
         const existing=await readJson(stampFile,null);if(existing){const {prompt,model,...safe}=existing;void prompt;void model;return {stamp:safe};}
+        await organizer.reserve('image');
         const c=await config(),imageConfig=validateConfig(c.image,'image');
         const oldJob=await readJson(jobFile,null);
         if(oldJob?.provider&&(oldJob.provider!==imageConfig.provider||oldJob.baseUrl!==imageConfig.baseUrl||oldJob.model!==imageConfig.model))throw new ServiceError('这一天已有绘图任务，请恢复原厂商、API 地址和模型后继续查询，避免重复计费。',409);
@@ -135,10 +141,17 @@ export function createService({dataDir=path.resolve('.local'),fetcher=fetch,env=
         const {bytes,extension}=await imageBytes(result,{fetcher,signal});
         const id=createHash('sha256').update(bytes).digest('hex').slice(0,24);const fileName=`${day}-${id}.${extension}`;
         await fs.mkdir(path.dirname(stampFile),{recursive:true});await fs.writeFile(path.join(dataDir,'stamps',fileName),bytes);
-        const stamp={id:`day-${day}-${id}`,dateKey:day,imageUrl:`/api/ai/stamp-assets/${fileName}`,title:'这一日的独特印记',meaning:oldJob?.brief||brief,createdAt:Date.now(),evidenceIds:oldJob?.evidenceIds||evidenceIds,eventKey};
+        const sourceTaskId=text(body.sourceTaskId,180);
+        const stamp={id:`day-${day}-${id}`,dateKey:day,...(sourceTaskId?{sourceTaskId}:{}),imageUrl:`/api/ai/stamp-assets/${fileName}`,title:'记住这一步',meaning:oldJob?.brief||brief,createdAt:Date.now(),evidenceIds:oldJob?.evidenceIds||evidenceIds,eventKey};
         await writeJson(stampFile,stamp);return {stamp};
       });
     },
     asset:async name=>{if(!/^\d{4}-\d{2}-\d{2}-[a-f0-9]{24}\.(png|jpg|webp)$/.test(name))throw new ServiceError('图片不存在。',404);try{return {bytes:await fs.readFile(path.join(dataDir,'stamps',name)),mime:name.endsWith('.png')?'image/png':name.endsWith('.jpg')?'image/jpeg':'image/webp'};}catch{throw new ServiceError('图片不存在。',404);}}
   };
+  organizer = createOrganizer({ dataDir, memory: memoryStore, env,
+    review: async snapshot => { const c = await config(); return chat(validateConfig(c.text,'text'), [{role:'system',content:`${SYSTEM_PROMPT}\n把这些用户亲自留下的具体内容整理成一两句简短回看。没有值得补充的就输出空 text。不要评价能力或情绪，不要固定日报格式。只在相关时引用授权收藏的原文，引用必须逐字匹配。输出 JSON {text,evidenceIds,references:[{bookmarkId,quote}]}。`}, {role:'user',content:JSON.stringify(snapshot)}], {fetcher}); },
+    draw: async body => { if (body.remove) { const f=path.join(dataDir,'stamps',`${dateKey(body.dateKey)}.json`);const saved=await readJson(f,null);if(saved){await fs.unlink(f);if(/^\/api\/ai\/stamp-assets\/[\w.-]+$/.test(saved.imageUrl||''))await fs.unlink(path.join(dataDir,'stamps',saved.imageUrl.split('/').at(-1))).catch(()=>{});}return; } return service.stamp(body); }
+  });
+  organizer.resume();
+  return service;
 }
