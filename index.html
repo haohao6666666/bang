@@ -2,22 +2,17 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#fbf7f0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="迹向" />
+    <meta name="apple-mobile-web-app-title" content="知途" />
+    <link rel="apple-touch-icon" href="/assets/zhitu-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
     <link rel="icon" type="image/webp" href="/assets/companions-v3/sprout.webp" />
-    <title>迹向 · 让每一步留下来</title>
+    <title>知途 · 让经历留下回响</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
-    </script>
   </body>
 </html>

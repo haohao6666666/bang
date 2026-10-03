@@ -103,17 +103,18 @@ test.describe("touch preview", () => {
     await expect(sheet).toContainText("科研阅读");
     await page.keyboard.press("Escape");
     await expect(sheet).toHaveCount(0);
+    await expect(page.getByTestId("device-picker")).not.toBeVisible();
     await dateCard(page, YESTERDAY).getByTestId("calendar-stamp").first().tap();
     await expect(sheet).toContainText(YESTERDAY);
-    await expect(page.getByTestId("phone-frame")).toHaveCount(0);
-    await expect(page.locator(".status-bar")).toHaveCount(0);
+    await expect(page.locator(".status-bar")).not.toBeVisible();
   });
 });
 
-test("calendar stamp explanation uses the clicked stamp's date", async ({ page }) => {
+test("weekly stamp explanation uses the clicked stamp's date", async ({ page }) => {
   await seedApp(page);
   await openCalendar(page);
-  await dateCard(page, YESTERDAY).getByTestId("calendar-stamp").first().click();
+  await page.getByLabel("回看范围").selectOption("week");
+  await page.getByTestId("calendar-stamp").and(page.getByRole("button", { name: new RegExp(YESTERDAY) })).first().click();
   await expect(page.getByTestId("bottom-sheet")).toContainText(YESTERDAY);
   await expect(page.getByTestId("bottom-sheet")).toContainText("10 分钟");
 });
@@ -231,13 +232,11 @@ test("settings remain available and persist after reload", async ({ page }) => {
   await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "我的", exact: true }).click();
   const sheet = page.getByTestId("bottom-sheet");
   await expect(sheet.getByRole("heading", { name: "设置", exact: true })).toBeVisible();
-  await sheet.getByRole("button", { name: "常规投入", exact: true }).click();
-  await sheet.getByLabel("在一天结束时轻轻提醒").uncheck();
-  await expect.poll(async () => (await readState(page)).preferences.reminderEnabled).toBe(false);
+  await sheet.getByLabel("减少动效").check();
+  await expect.poll(async () => (await readState(page)).preferences.reduceMotion).toBe(true);
   await page.reload();
   await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "我的", exact: true }).click();
-  await expect(sheet.getByLabel("在一天结束时轻轻提醒")).not.toBeChecked();
-  expect((await readState(page)).preferences.focusMode).toBe("standard");
+  await expect(sheet.getByLabel("减少动效")).toBeChecked();
 });
 
 test("acquisition filtering stays within its category and never changes evidence", async ({ page }) => {
@@ -264,20 +263,30 @@ test("acquisition filtering stays within its category and never changes evidence
   expect(after.diaries).toEqual(state.diaries);
 });
 
-test("opening a historical date returns to its original records", async ({ page }) => {
+test("saving a historical diary returns to that date and keeps its original evidence", async ({ page }) => {
   await seedApp(page);
   await openCalendar(page);
   await page.getByRole("button", { name: `查看 ${YESTERDAY} 的记录`, exact: true }).click();
+  await page.getByRole("button", { name: /写下这一天/ }).click();
+  const diaryText = "把昨天的思考补完整，今天依然可以接着走。";
+  await page.getByLabel("今天的日记").fill(diaryText);
+  await page.getByRole("button", { name: "保存日记", exact: true }).click();
+  await page.getByRole("button", { name: /这一页，已经收好/ }).click();
   await expect(page.locator(".day-heading")).toContainText("10.02");
   await page.getByRole("button", { name: "日记与成果", exact: true }).click();
-  await expect(page.getByTestId("bottom-sheet")).toContainText("昨天把论文的问题写清楚了。");
+  await expect(page.getByTestId("bottom-sheet")).toContainText(diaryText);
   await expect(page.getByTestId("bottom-sheet")).toContainText("证据：论文通过对照实验验证了问题。");
+  await page.keyboard.press("Escape");
+  await page.reload();
+  const saved = await readState(page);
+  expect(saved.diaries.find((entry: { dateKey: string }) => entry.dateKey === YESTERDAY).text).toBe(diaryText);
+  expect(saved.diaries.some((entry: { dateKey: string }) => entry.dateKey === TODAY)).toBe(false);
 });
 
-test("route, focus, outcome and work remain one persistent workflow", async ({ page }) => {
+test("route, focus, outcome and diary remain one persistent workflow", async ({ page }) => {
   await seedApp(page);
-  await expect(page.getByRole("navigation", { name: "今天的流程" })).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "主要导航" }).getByRole("button")).toHaveCount(3);
+  const flow = page.getByRole("navigation", { name: "主要导航" });
+  await expect(flow.getByRole("button")).toHaveCount(3);
   await page.getByRole("button", { name: /添加一个想做的事/ }).click();
   await page.getByLabel("添加今日任务").fill("整理一页研究笔记");
   await page.getByLabel("填写成果要求").fill("留下一张问题清单");
@@ -290,20 +299,15 @@ test("route, focus, outcome and work remain one persistent workflow", async ({ p
   await page.getByRole("button", { name: "先停一下", exact: true }).click();
   await expect.poll(async () => (await readState(page)).focusLogs.filter((log: { taskId: string }) => log.taskId === task.id).length).toBe(1);
   expect((await readState(page)).focusLedger[task.id]).toBeGreaterThanOrEqual(12_000);
-  await page.getByRole("button", { name: "留下成果", exact: true }).click();
-  await page.getByLabel("填写成果内容").fill("整理好了三条可以继续研究的问题。");
-  await page.getByRole("button", { name: /保存这一步/ }).click();
-  await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "写一句", exact: true }).click();
-  await page.getByLabel("作品一句话记录", { exact: true }).fill("今天从一个小问题开始，留下了三条清楚的线索。");
-  await page.getByRole("button", { name: "保存", exact: true }).click();
-  await expect.poll(async () => (await readState(page)).workRecords.some((record: { dateKey: string; text: string }) => record.dateKey === TODAY && record.text.includes("三条清楚的线索"))).toBe(true);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("button", {name:"结束",exact:true}).click();
+  await page.getByRole("button", {name:"这件事做完了",exact:true}).click();
   await page.reload();
   const restored = await readState(page);
-  expect(restored.tasks.find((item: { id: string }) => item.id === task.id).status).toBe("completed");
-  expect(restored.outcomes.some((item: { taskId: string; body: string }) => item.taskId === task.id && item.body.includes("三条"))).toBe(true);
-  expect(restored.workRecords.some((item: { text: string }) => item.text.includes("三条"))).toBe(true);
-  expect(restored.focusLogs.some((item: { taskId: string; durationMs: number }) => item.taskId === task.id && item.durationMs >= 12_000)).toBe(true);
+  expect(restored.tasks.find((item: {id:string})=>item.id===task.id).status).toBe("completed");
+  expect(restored.focusLogs.some((item: {taskId:string;durationMs:number})=>item.taskId===task.id&&item.durationMs>=12_000)).toBe(true);
+  expect(restored.outcomes).toEqual(recordedState().outcomes);
+  expect(restored.diaries).toEqual(recordedState().diaries);
 });
 
 test("legacy style migration retains time and historical style fallback", async () => {

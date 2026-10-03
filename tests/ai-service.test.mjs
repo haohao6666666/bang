@@ -7,6 +7,7 @@ import http from 'node:http';
 import { createService } from '../server/service.mjs';
 import { startApi } from '../server/index.mjs';
 import { normalizeSnapshot, validateDraft } from '../server/validation.mjs';
+import { imageGeneration, imageBytes, validateConfig } from '../server/providers.mjs';
 
 // Every model response below is an injected fixture. No real API key or provider request is used.
 const DAY = '2026-10-03';
@@ -18,6 +19,28 @@ const config = () => ({
 });
 const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } });
 const chatResponse = value => json({ choices: [{ message: { content: JSON.stringify(value) } }] });
+
+test('Seedream 5.0 Pro uses its exact model ID and returns a single local-decodable image', async () => {
+  const imageConfig=validateConfig({provider:'doubao',baseUrl:'https://ark.cn-beijing.volces.com/api/v3',model:'doubao-seedream-5-0-pro-260628',apiKey:FAKE_KEY},'image');
+  const result=await imageGeneration(imageConfig,'一枚温柔的阅读纪念印章',{fetcher:async(url,options)=>{
+    assert.equal(url,'https://ark.cn-beijing.volces.com/api/v3/images/generations');
+    const body=JSON.parse(options.body);
+    assert.equal(body.model,'doubao-seedream-5-0-pro-260628');
+    assert.equal(body.response_format,'b64_json');
+    assert.equal(Object.hasOwn(body,'sequential_image_generation'),false);
+    assert.equal(body.size,'2048x2048');
+    return json({data:[{b64_json:PNG.toString('base64')}]});
+  }});
+  const decoded=await imageBytes(result);
+  assert.deepEqual(decoded.bytes,PNG);
+});
+
+test('Token Dance allows only the user-confirmed gateway and exact DeepSeek model', () => {
+  const config={provider:'tokendance',baseUrl:'https://tokendance.space/gateway/v1',model:'deepseek-v4.1-flash',apiKey:FAKE_KEY};
+  assert.equal(validateConfig(config,'text').model,'deepseek-v4.1-flash');
+  for(const baseUrl of ['https://token.dance/gateway/v1','https://tokendance.space.attacker.example/gateway/v1','https://tokendance.space/other','http://tokendance.space/gateway/v1'])assert.throws(()=>validateConfig({...config,baseUrl},'text'));
+  assert.throws(()=>validateConfig(config,'image'));
+});
 const bookmark = (patch = {}) => ({ id: 'bookmark-1', platform: 'zhihu', title: '把困难拆成一个小问题', url: 'https://www.zhihu.com/question/123/answer/456', excerpt: '先写下现在已经知道的内容，再挑一个最小的问题尝试，观察这一步是否让事情变得更清楚。', savedAt: 123456, authorized: true, ...patch });
 function snapshot(day = DAY, bookmarks = []) {
   return {
@@ -71,6 +94,14 @@ test('configuration status never discloses keys and omission preserves only the 
   await assert.rejects(() => service.configure({ ...config(), text: { ...config().text, baseUrl: 'https://attacker.example/api' } }), /官方 API 地址/);
 });
 
+test('saving text and drawing settings preserves the separately configured vision model',async t=>{
+ const {service,dataDir}=await fixture(t);
+ await fs.writeFile(path.join(dataDir,'model-config.json'),JSON.stringify({...config(),vision:{provider:'doubao',baseUrl:'https://ark.cn-beijing.volces.com/api/v3',model:'vision-test',apiKey:FAKE_KEY}}));
+ const status=await service.configure(config());
+ assert.equal(status.vision.model,'vision-test');assert.equal(status.vision.configured,true);assert.equal(status.vision.apiKey,undefined);
+ const saved=JSON.parse(await fs.readFile(path.join(dataDir,'model-config.json'),'utf8'));assert.equal(saved.vision.model,'vision-test');
+});
+
 test('daily, weekly and image calls require explicit request consent before contacting any provider', async t => {
   let requests = 0;
   const { service } = await fixture(t, async () => { requests += 1; return chatResponse(draft()); });
@@ -79,6 +110,19 @@ test('daily, weekly and image calls require explicit request consent before cont
   await assert.rejects(() => service.weekly({ snapshots: [], rangeStart: '2026-10-01', rangeEnd: DAY }), error => error.status === 403);
   await assert.rejects(() => service.stamp({ dateKey: DAY, brief: '安静的阅读与一枚新芽', evidenceIds: [`focus-${DAY}`], snapshot: snapshot() }), error => error.status === 403);
   assert.equal(requests, 0);
+});
+
+test('focus-only daily echo stays factual and does not ask the model to invent a result', async t => {
+  let requests = 0;
+  const { service } = await fixture(t, async () => { requests += 1; return chatResponse({}); });
+  await service.configure(config());
+  const onlyFocus = { ...snapshot(), evidence: snapshot().evidence.filter(item => item.kind === 'task' || item.kind === 'focus') };
+  const result = await service.echo({ consent: true, snapshot: onlyFocus });
+  assert.equal(requests, 0);
+  assert.equal(result.draft.quiet, true);
+  assert.equal(result.draft.signals.length, 0);
+  assert.equal(result.draft.sparkle, null);
+  assert.match(result.draft.sourceNote, /只有任务名称和投入时长/);
 });
 
 test('switching away from environment configuration never reuses another provider key', async t => {
@@ -101,7 +145,7 @@ test('quiet days can consult authorized collections and a C2 failure preserves t
     return stage === 'C1' ? chatResponse(c1) : json({ error: 'temporary failure' }, 503);
   });
   await service.configure(config());
-  const result = await service.echo({ consent: true, collectionConsent: true, snapshot: snapshot(DAY, [bookmark()]) });
+  const result = await service.echo({ consent: true, snapshot: snapshot(DAY, [bookmark()]) });
   assert.deepEqual(calls, ['C1', 'C2']);
   assert.equal(result.draft.facts[0].text, c1.facts[0].text);
   assert.deepEqual(result.draft.externalMatches, []);
@@ -138,7 +182,7 @@ test('C1 sees only local records and C2 runs only for a supported need with auth
   await service.configure(config());
   const source = snapshot(DAY, [bookmark(), bookmark({ id: 'private-bookmark', authorized: false })]);
   const unchanged = structuredClone(source);
-  const result = await service.echo({ consent: true, collectionConsent: true, snapshot: source });
+  const result = await service.echo({ consent: true, snapshot: source });
   assert.deepEqual(calls.map(item => item.stage), ['C1', 'C2']);
   assert.deepEqual(calls[0].snapshot.bookmarks, []);
   assert.deepEqual(calls[1].snapshot.bookmarks.map(item => item.id), ['bookmark-1']);
@@ -315,85 +359,4 @@ test('HTTP API rejects cross-site, forged-host and headerless mutations before d
   assert.equal(status.headers.get('x-content-type-options'), 'nosniff');
   const bad = await fetch(`${base}/api/ai/echo`, { method: 'POST', headers, body: '{}' });
   assert.equal(bad.status, 500); assert.equal((await bad.text()).includes(FAKE_KEY), false);
-});
-
-test('companion asks for concrete details without calling the model when the user has not said anything', async t => {
-  let calls = 0;
-  const { service } = await fixture(t, async () => { calls += 1; return chatResponse({ reply: '模型不应被调用。' }); });
-  await service.configure(config());
-  const result = await service.companion({ consent: true, task: { id: 'task-1', title: '复习', actualMinutes: 25 }, messages: [] });
-  assert.match(result.reply, /具体完成了哪一步/);
-  assert.equal(result.memoryDraft, undefined);
-  assert.equal(calls, 0);
-});
-
-test('companion memory suggestions require exact user quotes and remain compact', async t => {
-  const { service } = await fixture(t, async () => chatResponse({
-    reply: '你已经把一个难点写成了可继续的问题。',
-    memoryDraft: { summary: '用户说自己完成了实验', nextStep: '继续', evidenceQuotes: ['模型臆想的实验'] },
-  }));
-  await service.configure(config());
-  const result = await service.companion({ consent: true, task: { id: 'task-1', title: '阅读', actualMinutes: 10 }, messages: [{ role: 'user', content: '我先写下了一个问题。' }] });
-  assert.equal(result.memoryDraft, undefined);
-  assert.ok(result.reply.length <= 320);
-});
-
-test('text outcome analysis keeps only source-backed quotes and rejects fabricated observations', async t => {
-  const { service } = await fixture(t, async () => chatResponse({
-    summary: '文档里记录了一个待验证问题。',
-    observations: [
-      { text: '文档提出了一个问题。', quote: '待验证问题' },
-      { text: '文档显示已经完成全部实验。', quote: '模型编造的句子' },
-    ],
-    uncertainties: ['无法从文档确认实验是否完成。'],
-    nextStep: '补充验证记录',
-  }));
-  await service.configure(config());
-  const result = await service.analyze({ consent: true, task: { id: 'task-1', title: '实验', actualMinutes: 20 }, file: { name: 'result.txt', mime: 'text/plain', text: '今天记录：待验证问题。' } });
-  assert.deepEqual(result.observations, [{ text: '文档提出了一个问题。', quote: '待验证问题' }]);
-  assert.deepEqual(result.uncertainties, ['无法从文档确认实验是否完成。']);
-});
-
-test('companion forwards cancellation and does not return a fabricated fallback', async t => {
-  const { service } = await fixture(t, async (_url, options) => await new Promise((resolve, reject) => {
-    if (options.signal.aborted) return reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
-    options.signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' })), { once: true });
-  }));
-  await service.configure(config());
-  const controller = new AbortController();
-  const pending = service.companion({ consent: true, task: { id: 'task-1', title: '阅读', actualMinutes: 15 }, messages: [{ role: 'user', content: '我读到了第二段。' }] }, controller.signal);
-  controller.abort();
-  await assert.rejects(pending, error => error.status === 504);
-});
-
-test('background memory stores exact user wording, deduplicates events, and forgets one event cleanly', async t => {
-  const { service, dataDir } = await fixture(t);
-  const event = { eventKey: 'companion:task-1:2026-10-03:1', taskId: 'task-1', dateKey: DAY, userQuotes: ['我读到第二段，先把问题写下来。'], nextStep: '下次从第三段接着读。', sourceIds: ['outcome-1'] };
-  assert.deepEqual(await service.memory(event), { stored: true });
-  assert.deepEqual(await service.memory(event), { stored: false, duplicate: true });
-  assert.deepEqual(await service.memoryStatus(), { enabled: true, count: 1 });
-  const document = JSON.parse(await fs.readFile(path.join(dataDir, 'memory', 'task-1', `${DAY}.json`), 'utf8'));
-  assert.deepEqual(document.quotes.map(item => ({ text: item.text, source: item.source })), [{ text: event.userQuotes[0], source: 'user' }]);
-  assert.deepEqual(document.inferences, []);
-  assert.equal(document.nextSteps[0].text, event.nextStep);
-  assert.equal((await service.memory({ forget: true, taskId: 'task-1', dateKey: DAY, eventKey: event.eventKey })).cleared, true);
-  assert.deepEqual(await service.memoryStatus(), { enabled: true, count: 0 });
-});
-
-test('automatic stamps require a concrete same-day record and reuse one result per day', async t => {
-  let submissions = 0;
-  const { service } = await fixture(t, async url => {
-    if (String(url).endsWith('/image-synthesis')) { submissions += 1; return json({ output: { task_id: 'automatic-job' } }); }
-    if (String(url).endsWith('/tasks/automatic-job')) return json({ output: { task_status: 'SUCCEEDED', results: [{ b64_json: PNG.toString('base64') }] } });
-    throw new Error('Unexpected endpoint');
-  });
-  await service.configure(config());
-  const base = { automatic: true, dateKey: DAY, brief: '留下一个具体问题的阅读记录', snapshot: snapshot(), eventKey: 'work:1' };
-  await assert.rejects(() => service.stamp({ ...base, evidenceIds: [`focus-${DAY}`] }), /具体作品或经历/);
-  const first = await service.stamp({ ...base, evidenceIds: [`outcome-${DAY}`] });
-  const second = await service.stamp({ ...base, evidenceIds: [`outcome-${DAY}`], brief: '同一天的第二次请求' });
-  assert.deepEqual(second, first);
-  assert.equal(submissions, 1);
-  assert.equal(first.stamp.prompt, undefined);
-  assert.equal(first.stamp.model, undefined);
 });

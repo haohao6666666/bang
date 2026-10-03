@@ -91,3 +91,25 @@ Entrance is a short, skippable welcome inside the app layer only, shown once per
 ## AI flow and collection integration (2026-10-03)
 Follow the user's supplied flow: local facts -> explicit per-request consent -> grounded daily/weekly drafts -> optional authorized collection adaptation -> user confirmation -> separately selected future experiments. Model output must never change focus evidence or deterministic stamp counts. Keep credentials on the local Node service and out of client storage, exports and deliverable archives. Zhihu/Xiaohongshu currently use explicitly labeled link/excerpt or JSON import; do not claim account sync or web search without a verified integration. Daily AI art is a separate dated commemorative illustration with a previewable drawing brief, not a replacement for earned evidence. Configuration existence is not proof of a successful provider call.
 
+
+## Companion refactor (2026-10-03)
+The current user request supersedes earlier four-tab and per-request consent decisions: use 今日 / 足迹 / 我的, automatic background organization after one-time opt-in, private server-side task memory, no raw memory viewer, and independent local attachment storage. Pause must not open a form. Preserve historical migrations and deterministic focus stamp counts. The user explicitly authorizes native phone runtime changes: no simulated keyboard or status chrome on actual mobile-sized screens.
+
+## Calendar and focus completion (2026-10-03)
+The calendar month view is a single day card in a horizontal Carousel. The card lists that day's task titles in a handwriting style and uses ✓ for user-confirmed done, ○ for continuing/not yet decided, and × for explicitly put down. At focus target end, play a short local alarm and ask the user once; never treat elapsed time as completion. Allow done, continue, put down, or add ten minutes. Calendar shows only first-acquired stamp types for that date; later repeats remain counted in the collection, never duplicated on the card.
+
+## Works and reading (2026-10-03)
+The works tab contains uploaded works only, never chat-only entries. Export works and chats as a readable, offline HTML booklet with embedded attachments; preserve authorship labels. Read TXT/DOCX/text PDFs locally, optionally share extracted text and reduced photos after the attachment-reading opt-in. Use an Ark image-understanding model, never embedding or Seedream, to describe photos. Time overview must aggregate saved FocusLogs by subject and selected period without counting planned time or duplicating cumulative ledgers.
+
+## Companion reliability (2026-10-03)
+Do not impose an app-level daily message or photo-reading quota on Xiaoya. Process the newest chat message first so older pending work cannot hold up a live conversation. Keep source/event deduplication, one commemorative drawing per date, and capped retry delays to avoid duplicate billing or tight failure loops. The local desktop preview can run through `npm run dev:stable`, which restarts its server after an unexpected exit; check both the page and `/api/ai/status` before handing the preview back to the user.
+
+Chat, reading and drawing must use independent provider jobs; disk locks are only for short updates. The client has one persistent sync loop and merges replies into the latest local state, including when another message is sent during a request. Use incremental event uploads and explicit deletion so large histories do not block live chat or disable memory. Persist vision configuration when saving other model settings. Text and image replies share Xiaoya's conversational voice with natural occasional 汪. Blank or quota-like model replies do not count as successful responses. Retry temporary network/provider failures with backoff, and wake on reconnection or returning to the app. `npm run dev` now uses the supervised preview with an API health check; `dev:watch` is reserved for server development.
+
+## Product name and task menu (2026-10-03)
+The product is now called 知途. Use this name in the app, onboarding, exports, model instructions and current product materials. Preserve existing jixiang storage keys, IndexedDB names, request headers, environment variables and source asset paths so saved data and service integrations remain compatible. Today task menus no longer include 编辑任务; remove the unused prompt-based editor and do not restore it.
+
+## Final tutorial and task density (2026-10-03)
+Keep Today task rows concise: no companion memory or progress prose in the row. Keep that context in chatting and date details. The first-use guide covers the current three-tab journey in eight short steps, is skippable and replayable from 我的, and never writes fabricated tasks or focus logs. Prepare an iPhone home-screen web app and a real-data recording walkthrough.
+
+Use the exact brand subtitle: ——一款陪伴和记录你成长的教育产品. Allow it to wrap naturally on phones without squeezing the calendar or profile controls.

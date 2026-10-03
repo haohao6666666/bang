@@ -24,7 +24,7 @@ async function openApp(page: Page, options: { reduceMotion?: boolean; running?: 
   await page.clock.install({ time: NOW });
   await page.clock.pauseAt(new Date(NOW.getTime() + 1_000));
   await page.addInitScript(({ key, state }) => {
-    if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(state));
+    localStorage.setItem("jixiang-getting-started-v1", "yes"); if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(state));
   }, { key: STORAGE_KEY, state: savedState(options) });
   await page.goto("/");
   await expect(page.locator(".jixiang-shell")).toBeVisible();
@@ -40,21 +40,22 @@ test("first entrance finishes automatically without altering evidence or device 
   await openApp(page);
   const welcome = page.getByTestId("welcome-transition");
   await expect(welcome).toBeVisible();
-  await expect(page.getByRole("button", { name: "进入迹向", exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: "进入知途", exact: true })).toBeFocused();
   await expect(page.locator(".app-experience")).toHaveAttribute("inert", "");
   const before = await readState(page);
+  const statusBefore = await page.locator(".status-bar").boundingBox();
+  const indicatorBefore = await page.locator(".home-indicator-svg").boundingBox();
+
   await page.clock.runFor(2_200);
   await expect(welcome).toHaveCount(0);
   // Flush the next frame after React removes inert and commits the revealed screen.
   await page.clock.runFor(50);
   await expect(page.locator(".app-experience")).not.toHaveAttribute("inert", "");
-  await expect(page.getByRole("heading", { name: "今天，先做这一件。", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "打开知途入口", exact: true })).toBeFocused();
   await expect(page.getByRole("navigation", { name: "主要导航" })).toBeVisible();
   expect(await readState(page)).toEqual(before);
-  await expect(page.locator(".status-bar")).toHaveCount(0);
-  await expect(page.locator(".home-indicator-svg")).toHaveCount(0);
-  await expect(page.locator(".keyboard-dock")).toHaveCount(0);
-  await expect(page.locator(".phone-frame")).toHaveCount(0);
+  expect(await page.locator(".status-bar").boundingBox()).toEqual(statusBefore);
+  expect(await page.locator(".home-indicator-svg").boundingBox()).toEqual(indicatorBefore);
   expect(await page.evaluate(key => sessionStorage.getItem(key), SESSION_KEY)).toBe("yes");
 
   await page.reload();
@@ -66,7 +67,7 @@ test("first entrance finishes automatically without altering evidence or device 
 test("enter button and Escape both skip the welcome immediately", async ({ page }) => {
   await openApp(page);
   const before = await readState(page);
-  await page.getByRole("button", { name: "进入迹向", exact: true }).click();
+  await page.getByRole("button", { name: "进入知途", exact: true }).click();
   await expect(page.getByTestId("welcome-transition")).toHaveCount(0);
   expect(await readState(page)).toEqual(before);
 
@@ -79,19 +80,25 @@ test("enter button and Escape both skip the welcome immediately", async ({ page 
   expect(await readState(page)).toEqual(before);
 });
 
-test("settings can replay the welcome and return to a usable home", async ({ page }) => {
+test("settings can replay the welcome on Pixel and return to a usable home", async ({ page }) => {
   await openApp(page);
   await page.keyboard.press("Escape");
   await page.clock.runFor(400);
+  await page.getByTestId("device-picker").click();
+  await page.getByTestId("device-option-pixel-10").click();
   await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "我的", exact: true }).click();
   await page.clock.runFor(400);
   await expect(page.getByTestId("bottom-sheet")).toBeVisible();
   const before = await readState(page);
+  const cameraBefore = await page.getByTestId("device-camera").boundingBox();
   await page.getByRole("button", { name: "重看入场动画", exact: true }).click();
   await page.clock.runFor(1_200);
   await expect(page.getByTestId("bottom-sheet")).toHaveCount(0);
+  await expect(page.getByTestId("welcome-transition")).toBeVisible();
+  expect(await page.getByTestId("device-camera").boundingBox()).toEqual(cameraBefore);
+  await page.clock.runFor(2_200);
   await expect(page.getByTestId("welcome-transition")).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "今日路线", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "今天的事", exact: true })).toBeVisible();
   expect(await readState(page)).toEqual(before);
   await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "足迹", exact: true }).click();
   await expect(page.getByRole("tab", { name: "我的印章册", exact: true })).toBeVisible();
@@ -102,7 +109,7 @@ test("saved reduced motion bypasses entrance and replay leaves the app usable", 
   await expect(page.getByTestId("welcome-transition")).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: "主要导航" })).toBeVisible();
   const before = await readState(page);
-  await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "我的", exact: true }).click();
+  await page.getByRole("button", { name: "设置", exact: true }).click();
   await page.clock.runFor(400);
   await page.getByRole("button", { name: "重看入场动画", exact: true }).click();
   await expect(page.getByTestId("welcome-transition")).toHaveCount(0);
@@ -131,9 +138,9 @@ test("returning with an active focus session skips welcome and preserves the run
   const before = await readState(page);
   await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "今日", exact: true }).click();
   await expect(page.getByRole("button", { name: "先停一下", exact: true })).toBeVisible();
-  const timerBefore = await page.getByLabel("累计投入时间").textContent();
+  const timerBefore = await page.getByLabel("本次剩余时间").textContent();
   await page.clock.runFor(3_000);
-  await expect(page.getByLabel("累计投入时间")).not.toHaveText(timerBefore!);
+  await expect(page.getByLabel("本次剩余时间")).not.toHaveText(timerBefore!);
   expect(await readState(page)).toEqual(before);
   expect(before.focusSession.startedAt).toBe(NOW.getTime() - 10_000);
   expect(before.focusLogs).toEqual(savedState({ running: true }).focusLogs);
@@ -142,18 +149,25 @@ test("returning with an active focus session skips welcome and preserves the run
   expect(await readState(page)).toEqual(before);
 });
 
-test("replay remains usable in a narrow real viewport", async ({ page }) => {
+test("replay stays anchored in a small scaled desktop preview", async ({ page }) => {
   await page.setViewportSize({ width: 358, height: 550 });
   await openApp(page);
   await page.keyboard.press("Escape");
   await page.clock.runFor(400);
-  await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "我的", exact: true }).click();
+  const screen = page.getByTestId("device-screen");
+  const statusBefore = await page.locator(".status-bar").boundingBox();
+  await page.getByRole("button", { name: "设置", exact: true }).click();
   await page.clock.runFor(500);
   await page.getByRole("button", { name: "重看入场动画", exact: true }).click();
   await page.clock.runFor(1_200);
+  await expect(page.getByTestId("welcome-transition")).toBeVisible();
+  expect(await screen.evaluate(el => el.scrollTop)).toBe(0);
+  await page.clock.runFor(2_200);
   await expect(page.getByTestId("welcome-transition")).toHaveCount(0);
-  await expect(page.locator(".phone-frame")).toHaveCount(0);
-  await expect(page.locator(".status-bar")).toHaveCount(0);
-  await expect(page.locator(".keyboard-dock")).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "主要导航" })).toBeVisible();
+  expect(await screen.evaluate(el => el.scrollTop)).toBe(0);
+  expect(await page.locator(".status-bar").boundingBox()).toEqual(statusBefore);
+  const screenRect = await screen.boundingBox();
+  const keyboardRect = await page.getByTestId("keyboard-dock").boundingBox();
+  expect(keyboardRect).toBeNull();
+  expect(screenRect!.width).toBe(358);
 });

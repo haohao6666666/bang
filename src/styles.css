@@ -252,66 +252,6 @@ button {
   inset: 0;
 }
 
-/* Installed/mobile web app shell. The desktop workbench still uses
-   PhoneFrame, while a touch-sized browser or Home Screen launch gets the
-   real viewport and the operating system's own status/keyboard chrome. */
-.native-runtime {
-  position: fixed;
-  z-index: 0;
-  inset: 0;
-  width: 100vw;
-  height: 100dvh;
-  overflow: hidden;
-  background: #fbf7f0;
-  color: #151515;
-  isolation: isolate;
-}
-
-.native-app-screen {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #fbf7f0;
-}
-
-.native-runtime .mobile-app-viewport {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.native-runtime .jixiang-shell {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-}
-
-.native-runtime .app-header {
-  top: env(safe-area-inset-top, 0px);
-}
-
-.native-runtime .app-screen {
-  top: calc(env(safe-area-inset-top, 0px) + 74px) !important;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 74px) !important;
-}
-
-.native-runtime .bottom-nav {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 7px);
-}
-
-.native-runtime .toast {
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 85px);
-}
-
-.native-runtime .mobile-page {
-  --mobile-safe-area-height: env(safe-area-inset-bottom, 0px);
-}
-
 .mobile-app-viewport[data-platform="android"][data-keyboard-visible="false"] {
   bottom: var(--device-safe-area-bottom, 48px);
 }

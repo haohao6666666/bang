@@ -1,58 +1,22 @@
-import { useEffect, useRef, useState, type PropsWithChildren } from "react";
+import { useEffect, type PropsWithChildren } from "react";
 import { MobileDeviceProvider, useMobileDevice } from "./Device";
 import { KeyboardDock, KeyboardProvider, useKeyboard } from "./Keyboard";
-import { PhoneFrame, ScreenPortalProvider } from "./PhoneFrame";
+import { PhoneFrame } from "./PhoneFrame";
 import { HomeIndicator, StatusBar } from "./components";
 
 export function MobileRuntime({ children }: PropsWithChildren) {
-  const [preview, setPreview] = useState(() => shouldUsePreviewShell());
-
-  useEffect(() => {
-    setPreview(shouldUsePreviewShell());
-  }, []);
-
   return (
     <MobileDeviceProvider>
-      {preview ? (
-        <PhoneFrame>
-          <KeyboardProvider>
-            <KeyboardPreview />
-            <StatusBar />
-            <MobileAppViewport>{children}</MobileAppViewport>
-            <HomeIndicator />
-            <KeyboardDock />
-          </KeyboardProvider>
-        </PhoneFrame>
-      ) : (
-        <NativeMobileRuntime>{children}</NativeMobileRuntime>
-      )}
+      <PhoneFrame>
+        <KeyboardProvider>
+          <KeyboardPreview />
+          <StatusBar />
+          <MobileAppViewport>{children}</MobileAppViewport>
+          <HomeIndicator />
+          <KeyboardDock />
+        </KeyboardProvider>
+      </PhoneFrame>
     </MobileDeviceProvider>
-  );
-}
-
-function shouldUsePreviewShell() {
-  if (typeof window === "undefined") return true;
-  const params = new URLSearchParams(window.location.search);
-  // The product uses the real viewport by default. The framed preview remains
-  // available for the interaction fixture and an explicit preview link.
-  if (window.location.pathname.endsWith("/tests/runtime-fixture.html")) return true;
-  if (params.get("preview") === "1") return true;
-  return false;
-}
-
-function NativeMobileRuntime({ children }: PropsWithChildren) {
-  const screenRef = useRef<HTMLDivElement | null>(null);
-
-  return (
-    <ScreenPortalProvider screenRef={screenRef}>
-      <KeyboardProvider native>
-        <div className="native-runtime" data-testid="native-runtime">
-          <div ref={screenRef} className="native-app-screen" data-phone-screen>
-            <MobileAppViewport>{children}</MobileAppViewport>
-          </div>
-        </div>
-      </KeyboardProvider>
-    </ScreenPortalProvider>
   );
 }
 
