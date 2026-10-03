@@ -4,13 +4,14 @@ const STORAGE_KEY = "jixiang-prototype-state-v5";
 
 async function openApp(page: Page) {
   await page.clock.install({ time: new Date("2026-10-03T12:00:00+08:00") });
+  await page.addInitScript(()=>{sessionStorage.setItem("jixiang-welcome-seen-v1","yes");localStorage.setItem("jixiang-getting-started-v1","yes");});
   await page.goto("/");
   await expect(page.getByRole("navigation", { name: "主要导航" })).toBeVisible();
 }
 
 async function companion(page: Page, name: string) {
   const picture = page.getByRole("img", { name, exact: true });
-  await picture.scrollIntoViewIfNeeded();
+  await picture.evaluate(el=>el.scrollIntoView({block:"center"}));
   await expect(picture).toBeVisible();
   await expect.poll(() => picture.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 100)).toBe(true);
   const source = await picture.getAttribute("src");
@@ -81,3 +82,4 @@ test("collection artwork and full-width explanations fit both phone presets", as
     await page.keyboard.press("Escape");
   }
 });
+

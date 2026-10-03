@@ -12,6 +12,7 @@ export type AiSnapshot = {
 export type GeneratedDayStamp = { id: string; dateKey: string; imageUrl: string; title: string; meaning: string; prompt: string; createdAt: number; evidenceIds: string[]; model: string };
 export type ModelConfiguration = { provider: string; baseUrl: string; model: string; apiKey?: string };
 export type AiServiceStatus = {
+  managed?: boolean;
   text: Omit<ModelConfiguration,"apiKey"> & { configured: boolean; verifiedAt?: number };
   image: Omit<ModelConfiguration,"apiKey"> & { configured: boolean; verifiedAt?: number };
   bookmarks: { zhihu: "import"; xiaohongshu: "import" };

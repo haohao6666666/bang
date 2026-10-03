@@ -47,6 +47,7 @@ test.use({ timezoneId: "Asia/Shanghai" });
 
 test("day, week and month share activity colors and legend selection preserves original evidence", async ({ page }) => {
   const seeded = await openRecordedApp(page);
+  await page.setViewportSize({width:390,height:844});
   await page.getByRole("button", { name: `查看 ${TODAY} 的记录`, exact: true }).click();
   const ring = page.getByTestId("time-distribution");
   await ring.scrollIntoViewIfNeeded();
@@ -63,6 +64,7 @@ test("day, week and month share activity colors and legend selection preserves o
   await mathLegend.click();
   await expect(mathLegend).toHaveAttribute("aria-pressed", "false");
   for (const view of ["周回顾", "月度"]) {
+    if(await page.locator(".day-toolbar").count())await page.locator(".day-toolbar button").first().click();
     await page.getByRole("tab", {name:"日历",exact:true}).click();
     await page.getByLabel("回看范围").selectOption(view === "周回顾" ? "week" : "month");
     await expect(ring).toHaveAttribute("data-total-ms", String(58 * MINUTE));

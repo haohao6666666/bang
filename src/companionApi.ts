@@ -1,4 +1,5 @@
 export type CompanionResult = {
+  managed?:boolean;drawingPending?:boolean;
   items: {id:string;taskId:string;dateKey:string;reply:string;progress:string;recap:string;imageUrl?:string;updatedAt?:number;acknowledgement?:boolean;sources?:{title:string;url:string;excerpt:string}[]}[];
   partial?:boolean;forgotten?:string[];reading?:import('./reading').Reading;replyError?:string;pendingIds?:string[];retryAt?:number;syncedAt?:number;
 };

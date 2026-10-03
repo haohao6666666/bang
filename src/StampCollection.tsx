@@ -1,6 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { ArrowRightIcon, CheckIcon, ChevronDownIcon, Cross2Icon } from "@radix-ui/react-icons";
-import { BottomSheet } from "./mobile";
+import { BottomSheet } from "./ProductSheet";
 import { buildStampCollection, STAMP_CATEGORIES, stampAsset, stampCategoryLabel, type StampCategory, type StampCollectionInput, type StampEvidence } from "./stampDefinitions";
 import "./stampCollection.css";
 

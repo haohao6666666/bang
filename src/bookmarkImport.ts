@@ -1,3 +1,4 @@
+import {uniqueId} from './uniqueId';
 import type { SavedBookmark } from "./aiContracts";
 
 export function collectionUrl(value: string) {
@@ -17,7 +18,7 @@ export function createBookmark(value: { url: string; title: string; excerpt?: st
   const link = collectionUrl(value.url);
   if (!link) throw new Error("请填写知乎或小红书的 HTTPS 分享链接。");
   if (!value.title.trim()) throw new Error("给这条收藏写一个标题，方便以后找到。");
-  return { id: `bookmark-${crypto.randomUUID()}`, ...link, title: value.title.trim().slice(0, 200), excerpt: (value.excerpt ?? "").trim().slice(0, 8000), savedAt: Date.now(), authorized: false };
+  return { id: `bookmark-${uniqueId()}`, ...link, title: value.title.trim().slice(0, 200), excerpt: (value.excerpt ?? "").trim().slice(0, 8000), savedAt: Date.now(), authorized: false };
 }
 
 export function parseBookmarkFile(contents: string): SavedBookmark[] {

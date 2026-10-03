@@ -20,6 +20,6 @@ export function TaskTimeStats({tasks,logs}:{tasks:Task[];logs:Log[]}) {
   return <section className="task-time-stats" aria-label="任务分类时长统计">
     <header><h2>时间花在哪儿</h2><select aria-label="统计时间范围" value={range} onChange={e=>setRange(e.target.value)}><option value="today">今天</option><option value="week">近 7 天</option><option value="month">本月</option><option value="all">全部</option></select></header>
     <TimeDistribution groups={groups}/>
-    <small>按任务类别汇总已保存的专注时间，暂停时间不计入。</small>
+    <small>按任务类别汇总专注时间，正在进行的也会记上，暂停时间不计入。</small>
   </section>;
 }

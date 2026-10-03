@@ -1,0 +1,5 @@
+{$SITE_ADDRESS} {
+  encode gzip zstd
+  reverse_proxy zhitu:8080
+  header X-Content-Type-Options nosniff
+}

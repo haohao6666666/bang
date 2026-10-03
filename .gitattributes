@@ -1,0 +1,2 @@
+# Preserve exact source bytes across Windows/Linux for mobile-runtime.lock.json.
+* -text

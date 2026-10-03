@@ -37,6 +37,7 @@ function recordedState() {
 async function seedApp(page: Page, state = recordedState(), storageKey = STORAGE_KEY) {
   await page.clock.install({ time: new Date("2026-10-03T12:00:00+08:00") });
   await page.addInitScript(({ state, storageKey }) => {
+    sessionStorage.setItem("jixiang-welcome-seen-v1","yes");localStorage.setItem("jixiang-getting-started-v1","yes");
     // Only seed a new browser context; reload must exercise actual persistence.
     if (!localStorage.getItem(storageKey)) localStorage.setItem(storageKey, JSON.stringify(state));
   }, { state, storageKey });
@@ -59,64 +60,21 @@ async function readState(page: Page) {
 
 test.use({ timezoneId: "Asia/Shanghai" });
 
-test("calendar preserves dates, weekday and per-task ten-minute counts", async ({ page }) => {
-  await seedApp(page);
-  await openCalendar(page);
-  const today = dateCard(page, TODAY);
-  const yesterday = dateCard(page, YESTERDAY);
-  await expect(today).toContainText("10.03");
-  await expect(today).toContainText(/周六|星期六/);
-  await expect(today).toContainText(/2 枚.*34 分钟/);
-  await expect(today.getByTestId("calendar-stamp")).toHaveCount(2);
-  await expect(yesterday).toContainText(/1 枚.*10 分钟/);
-  await expect(yesterday.getByTestId("calendar-stamp")).toHaveCount(1);
-  // Descriptive text belongs to the interaction, never permanently inside a date card.
-  await expect(today.getByTestId("calendar-stamp").first()).toHaveText("");
-  await expect(today.getByTestId("calendar-stamp").first().locator("img")).toHaveCount(1);
-  await expect(page.getByRole("tooltip")).toHaveCount(0);
+test("calendar keeps recorded time but paints a stamp type only on its first day",async({page})=>{
+ await page.setViewportSize({width:390,height:844});await seedApp(page);await openCalendar(page);
+ const today=dateCard(page,TODAY);await expect(today).toContainText("10.03");await expect(today).toContainText("周六");await expect(today).toContainText("34 分钟");
+ await expect(today.getByTestId("calendar-stamp")).toHaveCount(0);
+ const first=dateCard(page,TWO_DAYS_AGO);await first.scrollIntoViewIfNeeded();await expect(first.getByTestId("calendar-stamp")).toHaveCount(1);
+ await first.getByRole("button",{name:`查看 ${TWO_DAYS_AGO} 的记录`,exact:true}).click();
+ await expect(page.getByTestId("calendar-day-detail")).toBeVisible();await expect(page.getByTestId("bottom-sheet")).toHaveCount(0);
+ const images=await page.locator('.day-earned-stamps img').evaluateAll(imgs=>imgs.map(i=>(i as HTMLImageElement).src));expect(new Set(images).size).toBe(images.length);
+ await page.getByRole('button',{name:'‹ 返回日历',exact:true}).click();await expect(page.getByRole('tab',{name:'日历',exact:true})).toBeVisible();
 });
 
-test("desktop pointer hover explains a calendar stamp without entering the date", async ({ page }) => {
-  await seedApp(page);
-  await openCalendar(page);
-  await dateCard(page, TODAY).getByTestId("calendar-stamp").first().hover();
-  const tooltip = page.getByRole("tooltip");
-  await expect(tooltip).toBeVisible();
-  await expect(tooltip).toContainText("时间印迹");
-  await expect(tooltip).toContainText("科研阅读");
-  await expect(tooltip).toContainText(/真实|投入/);
-  await expect(page.getByRole("tab", { name: "日历", exact: true })).toHaveAttribute("aria-selected", "true");
-  await page.mouse.move(5, 5);
-  await expect(tooltip).toHaveCount(0);
-});
-
-test.describe("touch preview", () => {
-  test.use({ hasTouch: true, viewport: { width: 480, height: 1000 } });
-
-  test("touch opens a lightweight explanation on iPhone and Pixel", async ({ page }) => {
-    await seedApp(page);
-    await openCalendar(page);
-    await dateCard(page, TODAY).getByTestId("calendar-stamp").first().tap();
-    const sheet = page.getByTestId("bottom-sheet");
-    await expect(sheet.getByRole("heading", { name: "印章说明", exact: true })).toBeVisible();
-    await expect(sheet).toContainText("时间印迹");
-    await expect(sheet).toContainText("科研阅读");
-    await page.keyboard.press("Escape");
-    await expect(sheet).toHaveCount(0);
-    await expect(page.getByTestId("device-picker")).not.toBeVisible();
-    await dateCard(page, YESTERDAY).getByTestId("calendar-stamp").first().tap();
-    await expect(sheet).toContainText(YESTERDAY);
-    await expect(page.locator(".status-bar")).not.toBeVisible();
-  });
-});
-
-test("weekly stamp explanation uses the clicked stamp's date", async ({ page }) => {
-  await seedApp(page);
-  await openCalendar(page);
-  await page.getByLabel("回看范围").selectOption("week");
-  await page.getByTestId("calendar-stamp").and(page.getByRole("button", { name: new RegExp(YESTERDAY) })).first().click();
-  await expect(page.getByTestId("bottom-sheet")).toContainText(YESTERDAY);
-  await expect(page.getByTestId("bottom-sheet")).toContainText("10 分钟");
+test("today completion stays consistent between task, day card and detail",async({page})=>{
+ await page.setViewportSize({width:390,height:844});await seedApp(page);await page.getByRole('button',{name:'这件事做完了'}).click();await openCalendar(page);
+ await expect(dateCard(page,TODAY).locator('.day-card-tasks li').filter({hasText:'读完论文摘要'})).toContainText('✓');await dateCard(page,TODAY).getByRole('button',{name:`查看 ${TODAY} 的记录`,exact:true}).click();
+ await expect(page.locator('.day-overview-task').filter({hasText:'读完论文摘要'})).toContainText('✓');
 });
 
 test("an empty month does not display today's stamps", async ({ page }) => {
@@ -181,11 +139,11 @@ test("generated stamp images load in every category and match calendar and detai
   }
   await seedApp(page, state);
   await openCalendar(page);
-  const calendarStamp = dateCard(page, TODAY).getByTestId("calendar-stamp").first();
+  const calendarStamp = dateCard(page, TWO_DAYS_AGO).getByTestId("calendar-stamp").first();
   const calendarImage = await calendarStamp.locator("img").getAttribute("src");
-  await calendarStamp.click();
-  await expect(page.getByTestId("bottom-sheet").locator(".stamp-mark img")).toHaveAttribute("src", calendarImage!);
-  await page.keyboard.press("Escape");
+  await dateCard(page,TWO_DAYS_AGO).getByRole("button",{name:`查看 ${TWO_DAYS_AGO} 的记录`,exact:true}).click();
+  await expect(page.locator(".day-earned-stamps img").first()).toHaveAttribute("src",calendarImage!);
+  await page.locator(".day-toolbar button").first().click();
   await page.getByRole("tab", { name: "我的印章册", exact: true }).click();
   const collection = page.getByTestId("stamp-collection");
   await expect(page.getByTestId("stamp-card-time:mountain").locator("img")).toHaveAttribute("src", calendarImage!);
@@ -218,7 +176,7 @@ test("legacy aggregate time does not fabricate acquired growth stamps", async ({
   state.focusLogs = [];
   await seedApp(page, state);
   await openCalendar(page);
-  await expect(dateCard(page, TODAY).getByTestId("calendar-stamp")).toHaveCount(2);
+  await expect(dateCard(page, TODAY).getByTestId("calendar-stamp")).toHaveCount(0);
   await page.getByRole("tab", { name: "我的印章册", exact: true }).click();
   const collection = page.getByTestId("stamp-collection");
   for (const [category, key] of [["坚持章", "persistence:return"], ["突破章", "breakthrough:milestone"], ["成长章", "growth:reflection"]]) {
@@ -323,3 +281,4 @@ test("legacy style migration retains time and historical style fallback", async 
   expect(today.totalActualStampCount).toBe(2);
   expect(today.totalRemainderMs).toBe(14 * MINUTE);
 });
+

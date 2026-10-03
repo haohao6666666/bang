@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.local
+.env
+.env.*
+test-results
+playwright-report
+qa
+artwork/reference
+*.zip
+*.tar.gz
+*.log

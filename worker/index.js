@@ -1,5 +1,7 @@
+import {cloudApi} from '../server/cloud-api.mjs';
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
+    if(new URL(request.url).pathname.startsWith('/api/ai/'))return cloudApi(request,env,ctx);
     const response = await env.ASSETS.fetch(request);
     const acceptsHtml = request.headers.get("accept")?.includes("text/html");
 

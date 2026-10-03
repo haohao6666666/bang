@@ -33,7 +33,7 @@
 .reference-resting { width:128px; height:108px; }
 .reference-landscape { width:100%; height:auto; }
 .app-screen { position:absolute!important; top:127px!important; right:0; bottom:calc(var(--mobile-safe-area-height, 34px) + 74px)!important; left:0; height:auto!important; background:var(--page-bg); }
-.jixiang-app { min-height:100%; padding:5px 20px 30px; }
+.jixiang-app { min-height:0; padding:5px 20px 20px; }
 .tab-panel { display:grid; gap:16px; animation:paper-appear .22s ease; }
 .eyebrow { color:var(--accent,#55785d); font-size:10px; font-weight:500; line-height:1.6; letter-spacing:1px; }
 .section-description { color:var(--jx-muted); font-size:12px; line-height:1.8; margin-top:6px!important; }
@@ -153,8 +153,8 @@
 .stampbook-hero h1 { margin:8px 0; font-size:28px; color:#435e47; }
 .stampbook-hero p:last-child { color:#6a8063; font-size:11px; }
 .stampbook-hero>img { position:absolute; width:146px; height:118px; right:-9px; bottom:6px; }
-.stampbook-mobile-tabs { display:grid; grid-template-columns:1fr 1fr .8fr 1.4fr; padding:5px; gap:3px; background:#e7eee0; border-radius:16px; border:1px solid #dfe7d7; }
-.stampbook-mobile-tabs button { height:35px; min-width:0; border:0; padding:0 4px; border-radius:12px; background:transparent; color:#64795c; white-space:nowrap; font-size:11px; }
+.stampbook-mobile-tabs { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(100px,1.4fr); padding:5px; gap:3px; background:#e7eee0; border-radius:16px; border:1px solid #dfe7d7; }
+.stampbook-mobile-tabs button { min-height:40px; min-width:0; border:0; padding:0 10px; border-radius:12px; background:transparent; color:#64795c; white-space:nowrap; font-size:11px; }
 .stampbook-mobile-tabs button.selected { color:#466548; background:#fffdf7; box-shadow:0 2px 5px #35592d0c; font-weight:600; }
 .stampbook-mobile-sheet { position:relative; display:grid; gap:18px; padding:22px 12px 21px 20px; border:1px solid #e5d4b9; border-radius:12px 22px 22px 12px; background:linear-gradient(90deg,#dcc5a630,transparent 13%),#fff8e9; box-shadow:3px 4px 0 #e7dbbe66,0 8px 22px #70633b08; }
 .stampbook-mobile-sheet::before { content:""; position:absolute; left:5px; top:77px; bottom:80px; width:9px; background:radial-gradient(ellipse at center,#9d947888 0 3px,#f8edda 3px 4px,transparent 5px) 0 0/9px 73px repeat-y; pointer-events:none; }
@@ -182,6 +182,9 @@
 .stamp-empty-dot { display:inline-block; width:29px; height:29px; border:1px dashed #d6d3bc; border-radius:50%; }
 .notebook-quote { margin:6px -3px 0!important; font-family:"KaiTi","STKaiti",serif; font-size:12px; color:#9d9b83; text-align:center; line-height:1.9; }
 .stampbook-empty { grid-column:1/-1; display:grid; justify-items:center; text-align:center; gap:10px; padding:15px 0; }
+.stampbook-empty .reference-art{width:144px;height:132px;max-width:100%;object-fit:contain}
+.works-gallery{min-width:0}
+.works-gallery>.work-card,.work-comparison{min-width:0;max-width:100%;box-sizing:border-box}
 .stampbook-empty strong { font-size:13px; font-weight:500; }
 .stampbook-empty p { font-size:10px; color:var(--jx-muted); line-height:1.8; }
 .week-switch { display:flex; gap:12px; }.week-switch button { width:24px; }
@@ -297,6 +300,17 @@
 .keepsake-grid img,.legacy-keepsake { width:100%;max-width:240px;border-radius:50%; }
 .keepsake-grid button { border:0;background:none;width:100%;color:inherit; }
 .companion-chat { padding:4px 2px 24px; }
+.puppy-chat-button{box-sizing:border-box;padding:2px;overflow:hidden;display:grid;place-items:center}
+.puppy-chat-button img{width:32px;height:32px;max-width:100%;max-height:100%;object-fit:contain;margin:0}
+.chat-companion-heading{display:flex;align-items:center;gap:12px;flex-shrink:0;padding:0 0 10px;border-bottom:1px solid #e8e3d8}
+.chat-companion-heading img{width:64px;height:64px;object-fit:contain}
+.chat-companion-heading strong,.chat-companion-heading small{display:block;line-height:1.6}
+.chat-companion-heading strong{font-size:15px;color:#566e51}
+.chat-companion-heading small{font-size:12px;color:#8a8274}
+.companion-chat .settings-row,.settings-group .settings-row{min-height:44px;cursor:pointer}
+.companion-chat .settings-row input[type=checkbox],.settings-group .settings-row input[type=checkbox]{flex-shrink:0;width:22px;height:22px;cursor:pointer}
+[data-native-keyboard="open"] .chat-companion-heading img{width:36px;height:36px}
+[data-native-keyboard="open"] .chat-companion-heading{gap:8px;padding-bottom:6px}
 .chat-memory-off { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0 14px; padding:12px; border:1px solid #e6dfd2; border-radius:15px; background:#f8f5ed; color:#686d5e; font-size:13px; line-height:1.6; }
 .memory-intro { background:#f2eee3;padding:16px;border-radius:18px;margin-bottom:16px; }
 .memory-intro img { float:right;width:88px;height:88px; }
@@ -391,7 +405,26 @@
 .view-range select {padding:9px 12px;border:1px solid #dad4c6;border-radius:10px;background:#fffdf7;color:inherit;}
 .source-link {display:block;margin:8px 30px 12px 0;padding:14px;border-radius:12px;background:#edf1e5;color:#496043;text-decoration:none;}
 .source-link small {display:block;margin-top:6px;font-size:12px;line-height:1.7;color:#6e7565;}
-@media(max-width:699px){.phone-stage,.phone-scale-box,.phone-device,.device-screen{height:var(--native-height,100dvh)!important;}.bottom-sheet{max-height:calc(var(--native-height,100dvh) - env(safe-area-inset-top) - 12px)!important;bottom:0!important;}.sheet-content{padding-bottom:calc(20px + env(safe-area-inset-bottom));}input,textarea{font-size:16px!important;}}
+@media(max-width:699px){.phone-stage,.phone-scale-box,.phone-device,.device-screen{height:var(--native-page-height,100dvh)!important;}.bottom-sheet{max-height:calc(var(--native-height,100dvh) - env(safe-area-inset-top) - 12px)!important;bottom:var(--native-keyboard-inset,0px)!important;}.sheet-content{padding-bottom:calc(20px + env(safe-area-inset-bottom));}input,textarea{font-size:16px!important;}}
+/* Keep the whole app in Safari's visible viewport rather than letting focus pan it away. */
+@media(max-width:699px){
+  html,body,#root{height:100%;overscroll-behavior:none;}
+  .phone-stage{position:fixed;top:0;left:0;right:0;}
+  .app-screen{top:calc(96px + env(safe-area-inset-top,0px))!important;}
+  .bottom-sheet .sheet-handle-zone,.bottom-sheet .sheet-header{flex-shrink:0;}
+  .bottom-sheet:has(.companion-chat){height:calc(var(--native-height,100dvh) - env(safe-area-inset-top,0px) - 12px);touch-action:auto;}
+  .bottom-sheet:has(.companion-chat)>.sheet-content{display:flex;flex:1;min-height:0;overflow:hidden;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));}
+  .companion-chat{display:flex;flex:1;flex-direction:column;min-height:0;padding-bottom:0;}
+  .chat-timeline{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;padding-bottom:12px;}
+  .chat-composer{flex-shrink:0;max-height:60%;overflow-y:auto;border-top:1px solid #eee9df;padding-top:10px;overscroll-behavior:contain;touch-action:pan-y;}
+  .chat-composer textarea{min-height:64px;height:72px;max-height:96px;resize:none;}
+  .chat-composer>.settings-row{font-size:13px;padding:8px 0;}
+  .chat-composer .chat-compose-actions{margin-top:8px;}
+  .chat-composer .puppy-wait{display:flex;align-items:center;gap:8px;padding:6px 0;}
+  .chat-composer .puppy-wait img{width:28px;height:28px;}
+  [data-native-keyboard="open"] .chat-composer .settings-row small{display:none;}
+  [data-native-keyboard="open"] .bottom-sheet .sheet-header{padding-bottom:8px;}
+}
 
 .work-comparison {background:#edf0e7;border:1px solid #dbe1d0;border-radius:16px;padding:16px;}.work-comparison summary{font-size:15px;cursor:pointer;}.work-comparison>div{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}.work-comparison figure{margin:0;min-width:0;}.work-comparison figcaption{font-size:12px;color:#6a775e;}.work-comparison p{font-size:13px;line-height:1.7;}.deferred-tasks{padding:14px;font-size:13px;color:#88705d;}.deferred-tasks>div{display:flex;justify-content:space-between;align-items:center;gap:8px;}
 @media(max-width:699px){.mobile-cursor{display:none!important;}.device-screen,.device-screen *{cursor:auto!important;}}
@@ -408,3 +441,11 @@
 .calendar-day-carousel{margin:0 -4px;padding:0 4px}.calendar-day-carousel-content{display:flex}.calendar-day-carousel-content .stampbook-mobile-day-grid{display:flex;gap:14px;width:max-content}.calendar-day-carousel-content .stampbook-mobile-day-card{width:min(82vw,360px);min-width:min(82vw,360px);margin:0}.day-card-tasks{list-style:none;margin:14px 12px 4px;padding:0;border-top:1px dashed #d8d3c5;font-family:"STKaiti","KaiTi","Bradley Hand",cursive;font-size:18px;line-height:1.8}.day-card-tasks li{display:flex;justify-content:space-between;gap:12px}.day-card-tasks li b{font-family:system-ui;font-size:18px;font-weight:500}.day-card-tasks li.completed b{color:#5d8a5b}.day-card-tasks li.continued b{color:#a6814e}.day-card-tasks li.abandoned b{color:#a46e6e}.focus-finish-prompt{margin:12px 0;padding:18px;border:1px solid #ded9ca;border-radius:18px;background:#fff9ed;box-shadow:0 8px 20px #6e604018}.focus-finish-prompt strong{display:block;font-size:17px}.focus-finish-prompt p{margin:5px 0 12px;color:#72786d;font-size:13px}.focus-finish-prompt>div{display:flex;flex-wrap:wrap;gap:8px}.focus-finish-prompt .small{min-height:34px;padding:7px 12px}
 .day-overview-overlay{position:fixed;inset:0;z-index:20;background:#282d2666;display:flex;align-items:flex-end;padding:14px}.day-overview-sheet{width:min(100%,620px);max-height:88vh;overflow:auto;margin:auto;background:#fffaf0;border:1px solid #e2dccd;border-radius:24px;padding:22px;box-shadow:0 18px 55px #282d2633}.day-overview-sheet>header{display:flex;justify-content:space-between;align-items:flex-start}.day-overview-sheet h2{margin:0;font-family:"STKaiti","KaiTi",cursive;font-size:27px}.day-overview-sheet h3{margin:18px 0 10px;font-size:16px}.day-overview-task{display:grid;grid-template-columns:24px 1fr auto;gap:8px;padding:9px 0;border-bottom:1px dashed #ded8ca;align-items:center}.day-overview-task b{font-size:20px}.day-overview-task span,.day-overview-total{color:#6f776a;font-size:13px}.day-overview-memories article{background:#eef2e9;border-radius:14px;padding:12px;margin:8px 0}.day-overview-memories p{margin:4px 0}.day-overview-memories small{color:#65735f}.day-overview-memories a{display:block;color:#55745e;font-size:12px;margin-top:6px}.day-overview-stamps>div{display:flex;flex-wrap:wrap;gap:10px}.day-overview-stamps img{width:64px;height:64px;object-fit:contain}.day-overview-stamps p{color:#777d72;font-size:13px}
 .stampbook-mobile-day-card{padding-bottom:96px}.stampbook-mobile-day-stamps{position:absolute;right:14px;bottom:12px;z-index:2;display:flex;align-items:flex-end;justify-content:flex-end;gap:0;min-height:0;padding:0;pointer-events:none}.stampbook-mobile-day-stamps .calendar-stamp{pointer-events:auto}.stampbook-mobile-day-stamps .calendar-stamp.compact{width:74px;height:74px;margin-left:-16px;opacity:.58;filter:saturate(.86);transform:rotate(-4deg)}.stampbook-mobile-day-stamps .calendar-stamp.compact:nth-child(2n){transform:rotate(5deg) translateY(-5px)}.stampbook-mobile-day-stamps .calendar-stamp.compact:first-child{margin-left:0}
+
+/* Content owns a short tail; navigation and viewport already reserve safe areas. */
+.app-screen .mobile-scroll-content{overflow:clip;}
+@media(max-width:699px){.app-screen .mobile-scroll{bottom:0!important;transition:none;}.app-screen .mobile-scrollbar{bottom:4px;}.phone-stage{overflow:hidden;}}
+
+/* Every day card opens its own date; carousel still owns swipe suppression. */
+.stampbook-mobile-day-card{cursor:pointer;}
+.stampbook-mobile-day-card:focus-visible{outline:2px solid #80956c;outline-offset:3px;}

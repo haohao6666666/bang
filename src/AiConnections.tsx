@@ -58,12 +58,12 @@ export function AiConnections({ bookmarks, onBookmarks }: { bookmarks: SavedBook
   };
   return <section className="ai-connections settings-group" aria-label="模型与收藏">
     <p className="eyebrow">模型与收藏</p><h3>连接经验，也保留自己的判断。</h3>
-    <p className="connection-description">记录先留在本机。只有你确认生成时，本次预览的内容才会发送给所选模型服务。</p>
-    <details className="connection-section"><summary>国内大模型 <span>{status?.text.configured ? "已配置" : "待配置"}</span></summary>
+    <p className="connection-description">收藏里的内容，只有在你允许后才会交给小芽参考。</p>
+    {!status?.managed&&<details className="connection-section"><summary>国内大模型 <span>{status?.text.configured ? "已配置" : "待配置"}</span></summary>
       <p className="connection-description">文本模型负责理解，绘图模型负责画章。密钥存于本机 .local 目录，不写进浏览器缓存或导出记录；模型调用按厂商规则计费。</p>
       {modelFields("text")}{modelFields("image")}
       <button type="button" className="primary-button" disabled={busy} onClick={saveModels}>{busy ? "正在保存…" : "保存模型配置"}</button>
-    </details>
+    </details>}
     {message && <p className="connection-feedback" role="status">{message}</p>}
     <details className="connection-section" open><summary>我的收藏库 <span>{bookmarks.length} 条</span></summary>
       <div className="collection-platforms"><span>知乎 · 导入</span><span>小红书 · 导入</span></div>

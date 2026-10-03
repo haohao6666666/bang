@@ -1,0 +1,30 @@
+services:
+  zhitu:
+    build:
+      context: ../..
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - zhitu-data:/data
+    expose:
+      - '8080'
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      zhitu:
+        condition: service_healthy
+volumes:
+  zhitu-data:
+  caddy-data:
+  caddy-config:

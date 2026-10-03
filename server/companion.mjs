@@ -22,13 +22,16 @@ function eventFrom(value) {
     ...(value.reading?.text?{reading:{source:value.reading.source==='image'?'image':'document',text:clean(value.reading.text,12000),truncated:value.reading.truncated===true,...(value.reading.feedback?{feedback:clean(value.reading.feedback,240)}:{})}}:{})};
 }
 
-export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,providerRetries=2,workerInterval=15000}={}) {
+export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,providerRetries=2,workerInterval=15000,storage=fs,getConfig=()=>loadModelConfig(dataDir),withLock,schedule=fn=>setImmediate(fn),background=true,workLeaseMs=0}={}) {
+  const fs=storage;
+  const read=async(file,fallback)=>{try{return JSON.parse(await fs.readFile(file,'utf8'));}catch(error){if(error.code==='ENOENT')return fallback;throw error;}};
+  const write=async(file,data)=>{await fs.mkdir(path.dirname(file),{recursive:true});const temp=file+'.'+randomUUID();await fs.writeFile(temp,JSON.stringify(data,null,2),{mode:0o600});await fs.rename(temp,file);};
   const queues=new Map(),textJobs=new Map(),artJobs=new Map(),visionJobs=new Map();
   let closed=false;
   const locate=token=>{if(!/^[a-f0-9]{64}$/.test(token||''))throw new ServiceError('请重新打开页面。',403);return path.join(dataDir,'companions',hash(token));};
   const fileFor=dir=>path.join(dir,'memory.json');
   // Serialize only short disk changes. Model calls never hold this lock.
-  const locked=(dir,fn)=>{const previous=queues.get(dir)||Promise.resolve();const job=previous.catch(()=>{}).then(fn);queues.set(dir,job);job.finally(()=>{if(queues.get(dir)===job)queues.delete(dir);}).catch(()=>{});return job;};
+  const locked=(dir,fn)=>{const previous=queues.get(dir)||Promise.resolve();const job=previous.catch(()=>{}).then(()=>withLock?withLock(dir,fn):fn());queues.set(dir,job);job.finally(()=>{if(queues.get(dir)===job)queues.delete(dir);}).catch(()=>{});return job;};
   const load=async dir=>({...blank(),...await read(fileFor(dir),blank())});
   const change=(dir,fn)=>locked(dir,async()=>{const doc=await load(dir);const before=JSON.stringify(doc);const result=await fn(doc);if(JSON.stringify(doc)!==before)await write(fileFor(dir),doc);return result;});
   const cancel=dir=>{textJobs.get(dir)?.controller.abort();artJobs.get(dir)?.controller.abort();for(const [key,job] of visionJobs)if(key.startsWith(dir+'|'))job.controller.abort();};
@@ -39,13 +42,13 @@ export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,pr
     const controller=new AbortController();
     const job={controller};textJobs.set(dir,job);
     job.promise=(async()=>{
-      const config=await loadModelConfig(dataDir);
+      const config=await getConfig();
       const work=await change(dir,doc=>{
         if(!doc.enabled)return null;
         const latest=pending(doc,config).at(-1);if(!latest)return null;
         const batch=pending(doc,config).filter(e=>e.taskId===latest.taskId&&e.dateKey===latest.dateKey).slice(-8);
         const key=hash(latest.id+digest(latest));const attempt=doc.attempts[key]??={count:0,next:0};
-        attempt.count++;attempt.next=Date.now()+retryDelay(attempt.count);attempt.config=configKey(config);
+        attempt.count++;attempt.next=Date.now()+Math.max(workLeaseMs,retryDelay(attempt.count));attempt.config=configKey(config);
         const previous=doc.events.filter(e=>e.taskId===latest.taskId&&!batch.some(b=>b.id===e.id)).slice(-12).map(e=>({text:e.text,reply:doc.items.find(i=>i.id===e.id)?.reply||'',progress:doc.items.find(i=>i.id===e.id)?.progress||''}));
         return {event:latest,batch,previous,works:doc.events.filter(e=>e.taskId===latest.taskId&&e.reading?.text).slice(-2),bookmarks:doc.bookmarks??[]};
       });
@@ -62,7 +65,7 @@ export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,pr
           delete doc.lastError;
         });
       } catch(error) {
-        if(!controller.signal.aborted)await change(dir,doc=>{if(doc.enabled)doc.lastError={status:error.status||502,at:Date.now(),id:work.event.id};});
+        if(!controller.signal.aborted)await change(dir,doc=>{if(doc.enabled){const attempt=doc.attempts[hash(work.event.id+digest(work.event))];if(attempt)attempt.next=Date.now()+retryDelay(attempt.count);doc.lastError={status:error.status||502,at:Date.now(),id:work.event.id};}});
       }
     })().finally(()=>{if(textJobs.get(dir)===job)textJobs.delete(dir);});
     return job.promise;
@@ -72,12 +75,12 @@ export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,pr
     if(closed||artJobs.has(dir))return;
     const controller=new AbortController();const job={controller};artJobs.set(dir,job);
     job.promise=(async()=>{
-      const config=await loadModelConfig(dataDir);if(!config.image?.apiKey)return;
+      const config=await getConfig();if(!config.image?.apiKey)return;
       const work=await change(dir,doc=>{
         if(!doc.enabled)return null;
-        const item=doc.items.findLast(i=>!i.image&&!i.hideStamp&&(i.imageNext??0)<=Date.now()&&!doc.items.some(other=>other.dateKey===i.dateKey&&other.image)&&doc.events.some(e=>e.id===i.id&&e.kind==='work'&&!e.attachmentPending&&e.text.trim().length>=8));
+        const item=doc.items.findLast(i=>!i.image&&!i.hideStamp&&(i.imageNext??0)<=Date.now()&&!doc.items.some(other=>other.dateKey===i.dateKey&&(other.image||workLeaseMs>0&&other.id!==i.id&&(other.imageNext??0)>Date.now()))&&doc.events.some(e=>e.id===i.id&&e.kind==='work'&&!e.attachmentPending&&e.text.trim().length>=8));
         if(!item)return null;
-        item.imageAttempts=(item.imageAttempts??0)+1;item.imageNext=Date.now()+retryDelay(item.imageAttempts);
+        item.imageAttempts=(item.imageAttempts??0)+1;item.imageNext=Date.now()+Math.max(workLeaseMs,retryDelay(item.imageAttempts));
         return {item:{...item},source:doc.events.find(e=>e.id===item.id)};
       });
       if(!work)return;
@@ -90,7 +93,7 @@ export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,pr
           if(!doc.enabled||controller.signal.aborted||!item||item.hideStamp||doc.items.some(i=>i.dateKey===item.dateKey&&i.image))return;
           item.image=hash(item.id)+'.'+asset.extension;await fs.writeFile(path.join(dir,item.image),asset.bytes);item.imageMime=asset.mime;item.updatedAt=Date.now();
         });
-      }catch{/* Saved jobs resume later; never delay chat for a drawing. */}
+      }catch{await change(dir,doc=>{const item=doc.items.find(i=>i.id===work.item.id);if(item)item.imageNext=Date.now()+retryDelay(item.imageAttempts);});}
     })().finally(()=>{if(artJobs.get(dir)===job)artJobs.delete(dir);});
     await job.promise;
   }
@@ -103,7 +106,7 @@ export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,pr
     const key=dir+'|'+body.id+'|'+fingerprint;if(visionJobs.has(key))return visionJobs.get(key).promise;
     const controller=new AbortController();const job={controller};visionJobs.set(key,job);
     job.promise=(async()=>{
-      const config=await loadModelConfig(dataDir);
+      const config=await getConfig();
       if(!config.vision.model||/embedding|seedream/i.test(config.vision.model))throw new ServiceError('照片已保存，识图还没有接通。',503);
       const result=await chat(validateConfig(config.vision,'text'),[{role:'system',content:VISION_PROMPT},{role:'user',content:[{type:'text',text:'小芽，看看这件作品吧。'},{type:'image_url',image_url:{url:body.data}}]}],{fetcher,signal:controller.signal,retries:providerRetries,timeoutMs:45000,maxTokens:800});
       const description=clean(result.description,800).trim();if(!description)throw new ServiceError('这次没有看清，照片已经收好了。',502);
@@ -119,7 +122,7 @@ export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,pr
       const doc=await load(dir);const since=Number.isFinite(body.since)&&body.since<=Date.now()?body.since:null;
       const items=await Promise.all(doc.items.filter(i=>!body.partial||since===null||(i.updatedAt??0)>=since).map(async({digest,image,imageMime,...item})=>({...item,...(image?{imageUrl:'data:'+imageMime+';base64,'+(await fs.readFile(path.join(dir,image))).toString('base64')}:{})})));
       const unhandled=doc.events.filter(e=>!e.attachmentPending&&(e.text.trim()||e.reading?.text)&&!doc.items.some(i=>i.id===e.id&&i.digest===digest(e)));
-      return {items,partial:body.partial===true,forgotten:doc.forgotten,syncedAt:Date.now(),pendingIds:unhandled.map(e=>e.id),retryAt:unhandled.length?Math.min(...unhandled.map(e=>doc.attempts[hash(e.id+digest(e))]?.next??Date.now())):undefined,
+      return {items,drawingPending:doc.enabled&&doc.events.some(e=>e.kind==='work'&&!e.attachmentPending&&e.text.trim().length>=8&&doc.items.some(i=>i.id===e.id&&!i.hideStamp&&(i.imageNext??0)<=Date.now())&&!doc.items.some(i=>i.dateKey===e.dateKey&&(i.image||i.hideStamp))),partial:body.partial===true,forgotten:doc.forgotten,syncedAt:Date.now(),pendingIds:unhandled.map(e=>e.id),retryAt:unhandled.length?Math.min(...unhandled.map(e=>doc.attempts[hash(e.id+digest(e))]?.next??Date.now())):undefined,
         ...(unhandled.length&&doc.lastError?{replyError:doc.lastError.status===503?'小芽的连接还没配置好，去“我的”里检查一下。':doc.lastError.status===429?'这会儿有点挤，你的话已收好，我会接着试。':'刚才没连上，你的话已收好，我会接着试。'}:{})};
     });
   }
@@ -151,11 +154,12 @@ export function createCompanion({dataDir=path.resolve('.local'),fetcher=fetch,pr
     // An existing background job returns a snapshot immediately; a new chat gets the next turn.
     if(!textJobs.has(dir))await processText(dir);
     const result=await snapshot(dir,body);
-    if(!closed)setImmediate(()=>processArt(dir).catch(()=>{}));
+    if(!closed)schedule(()=>processArt(dir).catch(()=>{}));
     return result;
   };
-  const timer=setInterval(async()=>{const root=path.join(dataDir,'companions');for(const name of await fs.readdir(root).catch(()=>[])){if(!/^[a-f0-9]{64}$/.test(name))continue;const dir=path.join(root,name);void processText(dir).catch(()=>{});void processArt(dir).catch(()=>{});}},workerInterval);
-  timer.unref();
+  const timer=background?setInterval(async()=>{const root=path.join(dataDir,'companions');for(const name of await fs.readdir(root).catch(()=>[])){if(!/^[a-f0-9]{64}$/.test(name))continue;const dir=path.join(root,name);void processText(dir).catch(()=>{});void processArt(dir).catch(()=>{});}},workerInterval):null;
+  timer?.unref();
   api.close=()=>{closed=true;clearInterval(timer);for(const job of [...textJobs.values(),...artJobs.values(),...visionJobs.values()])job.controller.abort();};
+  api.drawPending=async token=>{await processArt(locate(token));return {items:[]};};
   return api;
 }

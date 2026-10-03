@@ -113,3 +113,20 @@ The product is now called 知途. Use this name in the app, onboarding, exports,
 Keep Today task rows concise: no companion memory or progress prose in the row. Keep that context in chatting and date details. The first-use guide covers the current three-tab journey in eight short steps, is skippable and replayable from 我的, and never writes fabricated tasks or focus logs. Prepare an iPhone home-screen web app and a real-data recording walkthrough.
 
 Use the exact brand subtitle: ——一款陪伴和记录你成长的教育产品. Allow it to wrap naturally on phones without squeezing the calendar or profile controls.
+
+## iPhone keyboard and LAN chat (2026-10-03)
+On native phone layouts track both visualViewport height and offsetTop on resize and scroll. Pin the app to the visible viewport; let chat history scroll separately from the composer. Never bring back the simulated keyboard. Preserve the incoming Host through the local Vite API proxy so same-origin LAN requests pass API validation; do not disable origin or cross-site protections.
+
+## Interactive walkthrough (2026-10-03)
+Replace the card-based first-use guide with a translucent, blurred spotlight walkthrough over real controls. Allow the highlighted control to work and advance after the actual action. Cover task creation, focus/pause/resume/end, completion, chat and memory consent, works, calendar details, time statistics, stamp collection and settings/export. It can be exited or replayed; never auto-grant consent, fabricate logs or upload works. Retain native keyboard viewport compensation during the guide.
+
+## Public cloud deployment (2026-10-03)
+The user authorizes a public HTTPS experience. Preserve local histories and storage keys. Cloud APIs share the companion logic with a D1/R2 private storage adapter, isolate visitors by a random bearer token, deny configuration changes from public clients, and accept only the actual site origin. Keep model keys exclusively in Sites secrets. The public origin has its own device-local tasks and works; do not claim cross-device sync or automatically publish desktop records. The deployment runtime changes to worker/index.js and prepare-sites-build.mjs are authorized for this request and must pass worker and companion tests before updating their lock hashes.
+
+## Always available Xiaoya (2026-10-03)
+The header puppy opens chatting on every page, even with zero tasks. General conversations use a reserved companion thread and must never create a fake task or FocusLog. Keep the puppy visible inside the chat after first-use consent. Capture checkbox values synchronously before queued journal writes so reading and proactive switches can be changed and survive reload. Production now uses Tencent Cloud Docker/Node with private server environment keys, while Sites build support remains available.
+
+## Live footprints and keyboard restoration (2026-10-03)
+Started tasks appear immediately in both the calendar card and its date detail, including while the timer is running. Share task membership and status rules between those views; ○ stays until the user marks completion. Derive daily time from dated FocusLogs plus a temporary live session view, never from the lifetime task ledger. Do not save that temporary view or award duplicate stamps. Keep one image per first-earned stamp type. Page changes reset the actual scrolling container and its momentum. Keep a short scroll tail with no repeated safe-area spacer. On native phones the page behind chat stays at its full height and top position; only the conversation sheet follows the keyboard's visible viewport. Every chat dismissal blurs native input and hides the simulated keyboard.
+
+Open a date detail from any area of its own calendar card, including task text and blank paper. Always capture that card's date, not the selected day. Keep carousel drag suppression and support Enter/Space when the card is focused. The `?tutorial=1` link replays the guide once without clearing saved records or automatically granting memory consent.

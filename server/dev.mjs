@@ -14,6 +14,7 @@ const privateFiles={name:'jixiang-private-files',configureServer(vite){vite.midd
   if(requestedPath.split('/').some(part=>{const name=part.toLowerCase().split(':')[0].replace(/[. ]+$/,'');return ['.local','.git','server'].includes(name)||name==='.env'||name.startsWith('.env.');})){res.writeHead(403,{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end('Private project files are not served.');return;}
   next();
 });}};
-const server=await createServer({plugins:[privateFiles],server:{host:bindHost,port,strictPort:true,fs:{deny:['.env','.env.*','**/.local/**','**/server/**','**/*.{crt,pem}','**/.git/**']},proxy:{'/api':{target:`http://127.0.0.1:${apiPort}`,changeOrigin:true}}}});
+// Preserve the browser's Host so the API can validate the same-origin LAN request.
+const server=await createServer({plugins:[privateFiles],server:{host:bindHost,port,strictPort:true,fs:{deny:['.env','.env.*','**/.local/**','**/server/**','**/*.{crt,pem}','**/.git/**']},proxy:{'/api':{target:`http://127.0.0.1:${apiPort}`,changeOrigin:false}}}});
 await server.listen();server.printUrls();console.log('本机模型服务已启动；API Key 仅存服务端。');
 for(const sig of ['SIGINT','SIGTERM'])process.on(sig,async()=>{await server.close();api.close();process.exit(0);});
