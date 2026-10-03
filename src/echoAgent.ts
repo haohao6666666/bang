@@ -1,5 +1,5 @@
 /**
- * Boundary between the local 迹向 product state and a future language-model
+ * Boundary between the local 知途 product state and a future language-model
  * adapter.  This module deliberately contains no network client and never
  * mutates tasks, timers, dates, or user records.
  */

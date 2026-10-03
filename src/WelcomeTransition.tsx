@@ -36,16 +36,16 @@ export function WelcomeTransition({ onComplete, reduceMotion }: { onComplete: ()
 
   return <section className="welcome-transition" role="dialog" aria-modal="true" aria-labelledby="welcome-heading" data-testid="welcome-transition" onKeyDown={event => { if (event.key === "Escape") finish.current(); }}>
     <div className="welcome-paper-edge" aria-hidden="true" />
-    <div className="welcome-brand"><ReferenceArt kind="sprout" eager /><span>迹向</span><small>一本关于你的生活手记</small></div>
+    <div className="welcome-brand"><ReferenceArt kind="sprout" eager /><span>知途</span><small>一本关于你的生活手记</small></div>
     <div className="welcome-scene" aria-hidden="true">
       <span className="welcome-orbit" /><span className="welcome-spark one">✧</span><span className="welcome-spark two">✦</span>
       <ReferenceArt kind="welcome" className="welcome-puppy" eager />
       <span className="welcome-label">把今天，轻轻翻开</span>
     </div>
-    <h1 id="welcome-heading">让热爱有位置，<br />让每一步留下来。</h1>
+    <h1 id="welcome-heading">让热爱有位置，<br />让每一步有回响。</h1>
     <p className="welcome-caption">从一个小小的开始，走向自己的方向。</p>
-    <div className="welcome-path" aria-hidden="true"><span>安排</span><i /><span>投入</span><i /><span>留下</span><i /><span>足迹</span></div>
-    <button type="button" ref={enterButton} className="welcome-enter" onClick={() => finish.current()}>进入迹向 <ArrowRightIcon /></button>
+    <div className="welcome-path" aria-hidden="true"><span>安排</span><i /><span>投入</span><i /><span>回声</span><i /><span>印迹</span></div>
+    <button type="button" ref={enterButton} className="welcome-enter" onClick={() => finish.current()}>进入知途 <ArrowRightIcon /></button>
     <span className="welcome-footer" aria-hidden="true">每一天，都是值得收藏的一页</span>
   </section>;
 }

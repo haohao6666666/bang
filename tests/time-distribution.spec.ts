@@ -45,7 +45,7 @@ async function openRecordedApp(page: Page) {
 
 test.use({ timezoneId: "Asia/Shanghai" });
 
-test("calendar activity colors and legend selection preserve original evidence", async ({ page }) => {
+test("day, week and month share activity colors and legend selection preserves original evidence", async ({ page }) => {
   const seeded = await openRecordedApp(page);
   await page.getByRole("button", { name: `查看 ${TODAY} 的记录`, exact: true }).click();
   const ring = page.getByTestId("time-distribution");
@@ -62,27 +62,32 @@ test("calendar activity colors and legend selection preserve original evidence",
   expect(dot).toBe("rgb(100, 141, 174)");
   await mathLegend.click();
   await expect(mathLegend).toHaveAttribute("aria-pressed", "false");
-  await expect(page.getByRole("tab", { name: "周回顾", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("tab", { name: "月度", exact: true })).toHaveCount(0);
+  for (const view of ["周回顾", "月度"]) {
+    await page.getByRole("tab", {name:"日历",exact:true}).click();
+    await page.getByLabel("回看范围").selectOption(view === "周回顾" ? "week" : "month");
+    await expect(ring).toHaveAttribute("data-total-ms", String(58 * MINUTE));
+    await expect(ring.locator('circle[data-activity="数学"]')).toHaveAttribute("stroke", stroke!);
+    await expect(ring.locator('button[data-activity="科研阅读"]')).toHaveAttribute("data-actual-ms", String(35 * MINUTE));
+  }
   const after = await page.evaluate(key => JSON.parse(localStorage.getItem(key)!), STORAGE);
   expect(after.focusLogs).toEqual(seeded.focusLogs);
   expect(after.focusLedger).toEqual(seeded.focusLedger);
 });
 
-test("donut and legend fit a real mobile viewport and an empty month does not invent segments", async ({ page }) => {
+test("donut and legend fit iPhone and Pixel and an empty month does not invent segments", async ({ page }) => {
   await openRecordedApp(page);
+  await page.getByLabel("回看范围").selectOption("month");
   const ring = page.getByTestId("time-distribution");
-  await ring.scrollIntoViewIfNeeded();
-  await expect(ring.locator(".activity-ring-segment")).toHaveCount(4);
-  const fit = await ring.evaluate(el => ({ fits: el.scrollWidth <= el.clientWidth, svg: el.querySelector("svg")!.getBoundingClientRect().width }));
-  expect(fit.fits).toBe(true);
-  expect(fit.svg).toBeGreaterThan(120);
-  await page.setViewportSize({ width: 390, height: 844 });
-  await ring.scrollIntoViewIfNeeded();
-  const narrow = await ring.evaluate(el => ({ fits: el.scrollWidth <= el.clientWidth, svg: el.querySelector("svg")!.getBoundingClientRect().width }));
-  expect(narrow.fits).toBe(true);
-  expect(narrow.svg).toBeGreaterThan(120);
+  for (const device of ["iphone", "pixel-10"]) {
+    if (device === "pixel-10") { await page.getByTestId("device-picker").click(); await page.getByTestId("device-option-pixel-10").click(); }
+    await ring.scrollIntoViewIfNeeded();
+    await expect(ring.locator(".activity-ring-segment")).toHaveCount(4);
+    const fit = await ring.evaluate(el => ({ fits: el.scrollWidth <= el.clientWidth, svg: el.querySelector("svg")!.getBoundingClientRect().width }));
+    expect(fit.fits).toBe(true);
+    expect(fit.svg).toBeGreaterThan(120);
+  }
   await page.getByRole("button", { name: "上个月", exact: true }).click();
-  await expect(page.getByTestId("time-distribution")).toHaveCount(0);
-  await expect(page.getByText("这个月还没有记录", { exact: true })).toBeVisible();
+  await expect(ring).toHaveAttribute("data-total-ms", "0");
+  await expect(ring.locator(".activity-ring-segment")).toHaveCount(0);
+  await expect(ring).toContainText("完成一段真实投入后");
 });

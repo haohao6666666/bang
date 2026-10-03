@@ -19,21 +19,6 @@ type ScreenPortalContextValue = {
 
 const ScreenPortalContext = createContext<ScreenPortalContextValue | null>(null);
 
-/**
- * The app has two shells: the calibrated preview frame used on desktop and
- * the real phone shell used by the installed/mobile web app. Both need the
- * same portal target so sheets stay inside the app viewport.
- */
-export function ScreenPortalProvider({
-  children,
-  screenRef,
-}: PropsWithChildren<{ screenRef?: RefObject<HTMLDivElement | null> }>) {
-  const ownScreenRef = useRef<HTMLDivElement | null>(null);
-  const contextValue = useMemo(() => ({ screenRef: screenRef ?? ownScreenRef }), [screenRef]);
-
-  return <ScreenPortalContext.Provider value={contextValue}>{children}</ScreenPortalContext.Provider>;
-}
-
 function suppressNativeDrag(event: DragEvent<HTMLElement>) {
   if (event.target instanceof Element && event.target.closest('[data-native-drag="true"]')) {
     return;
@@ -81,10 +66,11 @@ export function PhoneFrame({ children }: PropsWithChildren) {
   const { geometry } = device;
   const scale = useDeviceScale(geometry.device.width, geometry.device.height);
   const screenRef = useRef<HTMLDivElement | null>(null);
+  const contextValue = useMemo(() => ({ screenRef }), []);
   const mobileCursor = useMobileCursor();
 
   return (
-    <ScreenPortalProvider screenRef={screenRef}>
+    <ScreenPortalContext.Provider value={contextValue}>
       <div className="phone-stage">
         <DevicePicker />
         <div
@@ -153,6 +139,6 @@ export function PhoneFrame({ children }: PropsWithChildren) {
           </div>
         </div>
       </div>
-    </ScreenPortalProvider>
+    </ScreenPortalContext.Provider>
   );
 }

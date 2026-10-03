@@ -7,15 +7,13 @@ type SnapshotRecords = {
   outcomes: { id: string; dateKey: string; taskId: string; body: string; nextStep?: string; classification: string }[];
   diaries: { id: string; dateKey: string; text: string }[];
   notes: { id: string; dateKey: string; title: string; body: string; taskId?: string; archived?: boolean; type: string }[];
-  workRecords?: { id: string; dateKey: string; name: string; text?: string; taskId?: string; hidden?: boolean }[];
 };
 
 export function buildAiSnapshot(state: SnapshotRecords, dateKey: string, workspace: AiWorkspace, today = localDateKey()): AiSnapshot {
   const logs = state.focusLogs.filter(item => item.dateKey === dateKey);
   const outcomes = state.outcomes.filter(item => item.dateKey === dateKey);
   const notes = state.notes.filter(item => item.dateKey === dateKey && !item.archived && item.type !== "pause");
-  const works = (state.workRecords ?? []).filter(item => item.dateKey === dateKey && !item.hidden);
-  const taskIds = new Set([...logs, ...outcomes, ...notes, ...works].map(item => item.taskId).filter(Boolean));
+  const taskIds = new Set([...logs, ...outcomes, ...notes].map(item => item.taskId));
   const tasks = state.tasks.filter(item => dateKey === today || taskIds.has(item.id)).map(item => ({
     id: `task:${dateKey}:${item.id}`, title: item.title, subject: item.subject,
     plannedMinutes: dateKey === today ? item.planMinutes : 0,
@@ -24,11 +22,10 @@ export function buildAiSnapshot(state: SnapshotRecords, dateKey: string, workspa
   }));
   const titleFor = (id: string) => state.tasks.find(item => item.id === id)?.title ?? "已移除任务";
   const evidence: AiSnapshot["evidence"] = [
-    ...tasks.map(item => ({ id: item.id, kind: "task" as const, dateKey, text: `${item.title}（${item.subject}）。${dateKey === today ? `当前计划 ${item.plannedMinutes} 分钟；` : ""}这一天可追溯投入 ${item.actualMinutes} 分钟；当日成果：${item.status}。计划不是已完成的事实。` })),
+    ...tasks.map(item => ({ id: item.id, kind: "task" as const, dateKey, text: `${item.title}（${item.subject}）。${dateKey === today ? `计划 ${item.plannedMinutes} 分钟；` : ""}实际投入 ${item.actualMinutes} 分钟。${item.status !== "没有当日成果状态" ? `记录状态：${item.status}。` : ""}` })),
     ...logs.map(item => ({ id: `focus:${item.id}`, kind: "focus" as const, dateKey, text: `${titleFor(item.taskId)}：真实投入 ${Math.round(item.durationMs / 600) / 100} 分钟。` })),
     ...outcomes.map(item => ({ id: `outcome:${item.id}`, kind: "outcome" as const, dateKey, text: `${titleFor(item.taskId)}：${item.body}${item.nextStep ? `；继续点：${item.nextStep}` : ""}` })),
     ...notes.map(item => ({ id: `note:${item.id}`, kind: "note" as const, dateKey, text: `${item.title}：${item.body}` })),
-    ...works.map(item => ({ id: `work:${item.id}`, kind: "note" as const, dateKey, text: item.text ? `${item.name}：${item.text}` : `作品：${item.name}` })),
     ...(workspace.includeDiary ? state.diaries.filter(item => item.dateKey === dateKey).map(item => ({ id: `diary:${item.id}`, kind: "diary" as const, dateKey, text: item.text })) : []),
   ];
   // Running time and undated legacy totals remain local; never manufacture dated focus logs.
