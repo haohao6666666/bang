@@ -9,7 +9,10 @@
     "test:runtime": "playwright test",
     "test:sites": "node --test tests/sites-worker.test.mjs",
     "predev": "npm run check:runtime",
-    "dev": "vite",
+    "dev": "node server/dev.mjs",
+    "dev:ui": "vite",
+    "start:api": "node server/index.mjs",
+    "test:ai": "node --test tests/ai-service.test.mjs",
     "prebuild": "npm run check:runtime",
     "build": "tsc && vite build && node scripts/prepare-sites-build.mjs"
   },

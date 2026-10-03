@@ -1,0 +1,180 @@
+{
+  "converted": 17,
+  "expected": 17,
+  "sourceBytes": 39440833,
+  "deliveredBytes": 27622488,
+  "savedBytes": 11818345,
+  "savedPercent": 29.96,
+  "images": [
+    {
+      "id": "time-book",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2362329,
+      "deliveredBytes": 1669788,
+      "sourceSha256": "a30b6df09414d2446767c3627928f58e7f14b5a5fb905f2d95acfdf0e2d646bf",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-atom",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2435891,
+      "deliveredBytes": 1757748,
+      "sourceSha256": "8bc90974a36f8d168a179114c4d4c118946745d37db15d3e3fa1c7c4793b878a",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-flask",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2026363,
+      "deliveredBytes": 1414156,
+      "sourceSha256": "59870f77831e195e9345125614f8b6040c6f873dba3e9dcfbcf4b3f9b10a8cd9",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-english",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2181277,
+      "deliveredBytes": 1491462,
+      "sourceSha256": "850e45e79b318666d50f19fb0a829e31ad7b834db3b065b3c511b2c1c23b2267",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-leaf",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2010772,
+      "deliveredBytes": 1378764,
+      "sourceSha256": "d98be8fdaaf9d234749ef2c9dcaa054739e61c3a7338fcc54b5b14f5a1cbff79",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-pen",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2149611,
+      "deliveredBytes": 1510126,
+      "sourceSha256": "c5ec7690cc3a4c14b67f172289febead78370b0ef276be85b2e2ebf207a487fe",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-mountain",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2476667,
+      "deliveredBytes": 1704718,
+      "sourceSha256": "2412d6b956e4d8f2647002b97239080f80ee94e460a4f7186f043a3d42f829ff",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-coffee",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2282377,
+      "deliveredBytes": 1591640,
+      "sourceSha256": "f8f8aaf52ad595891ec45183427cc7325dbe0762bb9514b67f42d8be2934fbf6",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-source",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2393138,
+      "deliveredBytes": 1647522,
+      "sourceSha256": "1587b588ff3ee3c3baf0affb6d99dcd45afc637cd2fb531ccd3baec5ef8f0e79",
+      "pixelIdentical": true
+    },
+    {
+      "id": "time-spark",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2064359,
+      "deliveredBytes": 1497320,
+      "sourceSha256": "b31d202b8321f9ea0c0bfba425fee1aaf08ece5d3933d9ee720578c1c32a822d",
+      "pixelIdentical": true
+    },
+    {
+      "id": "persistence-return",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2091170,
+      "deliveredBytes": 1433768,
+      "sourceSha256": "7d942075454aedb379cd1602db57149785f3edfc48b5bc0f5cfc5ddd40f26879",
+      "pixelIdentical": true
+    },
+    {
+      "id": "breakthrough-milestone",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2416413,
+      "deliveredBytes": 1732918,
+      "sourceSha256": "cffb894bfd4ef386f519a853d5a130cc1128acb4171dfdcee738ab08b291ac2f",
+      "pixelIdentical": true
+    },
+    {
+      "id": "growth-reflection",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2561604,
+      "deliveredBytes": 1789224,
+      "sourceSha256": "1f53b3caf024b4f27ce877ae4566f5ed521f3ecb5bafdffcb5369bb92b77f5c1",
+      "pixelIdentical": true
+    },
+    {
+      "id": "exploration-research",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2691836,
+      "deliveredBytes": 1909060,
+      "sourceSha256": "c3156bf318c77d3cb07f10088e7fed7ee18138a277d5a96e95bf69d4cca96e85",
+      "pixelIdentical": true
+    },
+    {
+      "id": "exploration-math",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2324362,
+      "deliveredBytes": 1636680,
+      "sourceSha256": "5df82664a670554dabad7d725c3bb67b5129927887a553c5d48b8ba4b57f8d8a",
+      "pixelIdentical": true
+    },
+    {
+      "id": "exploration-interest",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2470031,
+      "deliveredBytes": 1691816,
+      "sourceSha256": "1b6af3a683cda4b1c8d6a4a37033a28e6c450f31101b0998098c56b9b4d51d2f",
+      "pixelIdentical": true
+    },
+    {
+      "id": "exploration-journey",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 2502633,
+      "deliveredBytes": 1765778,
+      "sourceSha256": "00c9ae779a7843e209dfcbf87ca2d83e79cd30eaef5a325655e4b95293a6e20e",
+      "pixelIdentical": true
+    }
+  ]
+}

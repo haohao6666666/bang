@@ -1,0 +1,40 @@
+.ai-connections { display:grid; gap:12px; min-width:0; }
+.ai-connections h3 { font-family:"KaiTi",serif; font-size:20px; color:#596e60; line-height:1.7; }
+.connection-description { font-size:11px; line-height:1.85; color:#82786c; }
+.connection-section { border:1px solid #dfdfce; border-radius:14px; background:#fbfaf3; padding:13px; min-width:0; }
+.connection-section>summary { display:flex; justify-content:space-between; gap:12px; font-size:13px; color:#5c725e; cursor:pointer; }
+.connection-section>summary::after { content:"＋"; }
+.connection-section[open]>summary::after { content:"−"; }
+.connection-section>summary span { margin-left:auto; font-size:10px; color:#8a8c7b; }
+.connection-section[open]>summary { margin-bottom:14px; }
+.model-fieldset { display:grid; gap:12px; border:1px solid #e3decf; border-radius:12px; margin:16px 0; padding:13px; min-width:0; }
+.model-fieldset legend { color:#786a50; font-size:12px; padding:0 4px; }
+.model-fieldset legend span { display:block; font-size:9px; color:#938976; }
+.model-fieldset label,.bookmark-form label { display:grid; gap:6px; font-size:11px; color:#7c756b; }
+.model-fieldset input,.model-fieldset select,.bookmark-form input,.bookmark-form textarea { border:1px solid #dedccd; border-radius:9px; background:#fffef9; color:#545e51; font:inherit; padding:11px; width:100%; min-width:0; box-sizing:border-box; }
+.model-fieldset details { min-width:0; }
+.model-fieldset details summary { font-size:11px; cursor:pointer; color:#8a887a; }
+.model-fieldset details input { margin-top:8px; font-size:10px; }
+.model-fieldset small { display:block; font-size:9px; color:#9b8c77; line-height:1.7; padding-top:5px; }
+.connection-feedback { background:#f0eadb; border-radius:10px; padding:11px; font-size:11px; line-height:1.8; color:#8a704e; overflow-wrap:anywhere; }
+.collection-platforms { display:flex; gap:8px; margin-bottom:10px; }
+.collection-platforms span { background:#e7eef0; color:#667c85; border-radius:7px; padding:5px 9px; font-size:10px; }
+.collection-platforms span+span { background:#f4e5e2; color:#a47a71; }
+.bookmark-form { display:grid; gap:12px; margin:16px 0; }
+.bookmark-form textarea { min-height:115px; line-height:1.8; resize:vertical; }
+.bookmark-form button { justify-self:start; }
+.bookmark-import { display:grid; gap:8px; font-size:11px; color:#667b64; padding:13px 0; border-top:1px dashed #dedbce; }
+.bookmark-import input { font-size:10px; width:100%; }
+.import-example { font-size:10px; color:#9b9281; margin:0 0 12px; }
+.import-example pre { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.8; padding:10px; background:#f4f1e9; }
+.bookmark-list { display:grid; gap:12px; margin-top:12px; }
+.bookmark-list article { padding:13px; border:1px solid #e5dfd3; border-radius:12px; background:#fffdf7; min-width:0; }
+.bookmark-list article>span { color:#a39884; font-size:9px; }
+.bookmark-list h4 { margin:7px 0; font-size:12px; line-height:1.7; color:#6d725c; }
+.bookmark-list article>p { font-size:11px; color:#827b70; white-space:pre-wrap; line-height:1.85; overflow-wrap:anywhere; max-height:180px; overflow:auto; }
+.bookmark-authorize { display:flex; gap:8px; font-size:10px; color:#768569; line-height:1.8; align-items:flex-start; padding:12px 0; }
+.bookmark-authorize input { accent-color:#788d68; margin-top:3px; }
+.bookmark-list article>div { display:flex; align-items:center; gap:12px; }
+.bookmark-list a { font-size:10px; color:#668478; }
+.bookmark-list .text-button { font-size:10px; }
+.collection-empty { padding:20px 12px 8px; font-family:"KaiTi",serif; font-size:15px; line-height:1.9; color:#9c937c; text-align:center; }

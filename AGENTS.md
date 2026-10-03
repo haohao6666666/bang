@@ -73,3 +73,20 @@ When any text-entry control loses focus, dismiss the simulated keyboard. If the 
 ## Current product decision (2026-10-02)
 
 “心屿”岛屿视觉与独立页面收敛为“我的印迹册”。印迹册严格采用参考图的纸页与日期卡结构：月份视图先按日期展示 3 列纸卡，进入日期后查看单日活页纸；每 10 分钟真实投入对应一枚有来源的时间印章，日期、数量、来源文字和投入分布由代码渲染。印章不再提供 DIY 或更换入口，而是按任务来源固定颜色与图样（来源文字样式作为无特殊图样的默认兼容样式）。顶部使用透明背景的猫咪与绿色印迹册插图作为品牌陪伴视觉。今日路线支持通过左侧手柄拖动任务排序，并允许删除不再需要的任务；删除时清理该任务的计时、成果和便签引用，至少保留一个任务。
+
+## UI direction (2026-10-03)
+Use the supplied original jixiang reference boards: ivory paper, harmonious gentle colors, generous spacing, botanical puppy mascot and ink stamps. Keep product UI a single journey: plan -> focus -> reflection -> imprint. Fixed navigation uses 今日 / 足迹 / 回响 / 我的. Calendar date cards contain stamp pictures only; explanations open on hover/tap. The separate 我的印章册 tab reads unified metadata and derives acquisition from real evidence, never from legacy aggregate time alone. Preserve FocusLog, migrations and protected device runtime. Original reference boards remain intact in artwork/reference as design sources only; never display them through CSS crops.
+
+## Stamp artwork preference (2026-10-03)
+Use individual colorful generated illustrations for every stamp, retaining the warm paper and botanical collection style. Unearned stamps stay gently lighter in color, never grayscale; clearly retain the 未获得 label. Resolve artwork centrally from stamp metadata so the calendar, catalog, monthly view and detail sheets show the same image. Illustrations must not change saved style assignments, acquisition rules or evidence.
+
+## Richer UI and companion direction (2026-10-03)
+The user rejected monotonous cream/green surfaces and cropped sections of reference boards. Use independent transparent artwork matching the cream floppy-eared sprout puppy, with distinct welcome, reading, resting, thinking, journaling and encouraging poses. Use books/tea and landscape illustrations in relevant quiet sections. Page accents follow plan/apricot, focus/dusty blue, reflection/lavender, collection/botanical green, with clear dark body text and prominent actions. Keep navigation and data flows consistent. Collection acquisition filters never affect earned evidence. Diary next-step navigation must use the diary's own date, including historical dates.
+
+## Activity colors and entrance (2026-10-03)
+Time distribution uses an activity-colored donut with matching labeled legend, durations and percentages. Aggregate matching subjects across dates without changing original recorded milliseconds. Resolve activity colors centrally in activityColors.ts so task dots, daily, weekly and monthly charts agree; unknown subjects use a deterministic color. Do not derive chart colors from user-customized legacy stamp styles. Keep all existing calendar counts and FocusLog evidence intact.
+
+Entrance is a short, skippable welcome inside the app layer only, shown once per tab session with replay in settings. Keep device status chrome still, preserve running timers, bypass entrance for running sessions and both saved/OS reduced-motion preferences. Replays must wait for the existing settings sheet to unmount before creating the welcome layer; restore focus after removing inert. UI details should clarify actual state: small route progress, date tickets, current navigation and accordion indicators, never invented achievements.
+
+## AI flow and collection integration (2026-10-03)
+Follow the user's supplied flow: local facts -> explicit per-request consent -> grounded daily/weekly drafts -> optional authorized collection adaptation -> user confirmation -> separately selected future experiments. Model output must never change focus evidence or deterministic stamp counts. Keep credentials on the local Node service and out of client storage, exports and deliverable archives. Zhihu/Xiaohongshu currently use explicitly labeled link/excerpt or JSON import; do not claim account sync or web search without a verified integration. Daily AI art is a separate dated commemorative illustration with a previewable drawing brief, not a replacement for earned evidence. Configuration existence is not proof of a successful provider call.

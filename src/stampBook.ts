@@ -39,35 +39,10 @@ export type StampStyleAssignment = StampStyleChoice & {
   selectedAt: number;
 };
 
-export const STAMP_COLOR_OPTIONS: ReadonlyArray<{ id: StampColor; label: string }> = [
-  { id: "ink", label: "墨灰" },
-  { id: "coral", label: "珊瑚" },
-  { id: "blue", label: "湖蓝" },
-  { id: "sage", label: "苔绿" },
-  { id: "violet", label: "藤紫" },
-  { id: "amber", label: "琥珀" },
-  { id: "brown", label: "咖啡" },
-];
-
-export const STAMP_ICON_OPTIONS: ReadonlyArray<{ id: StampIcon; label: string }> = [
-  { id: "source", label: "来源文字" },
-  { id: "book", label: "书页" },
-  { id: "atom", label: "原子" },
-  { id: "flask", label: "烧瓶" },
-  { id: "english", label: "En" },
-  { id: "leaf", label: "叶片" },
-  { id: "pen", label: "钢笔" },
-  { id: "mountain", label: "山形" },
-  { id: "coffee", label: "咖啡" },
-  { id: "spark", label: "闪光" },
-];
-
-/** 第一项是最克制的“仅在印章内部显示具体来源”。 */
-export const STAMP_STYLE_PRESETS: ReadonlyArray<StampStyleChoice & { label: string; description: string }> = [
+/** 仅用于兼容历史存档的样式值；产品文案统一定义于 stampDefinitions.ts。 */
+const LEGACY_STAMP_STYLES: readonly StampStyleChoice[] = [
   {
     presetId: "source-only",
-    label: "来源文字",
-    description: "仅在印章内部显示具体来源，不增加特殊图样。",
     outline: "plain",
     color: "ink",
     icon: "source",
@@ -75,8 +50,6 @@ export const STAMP_STYLE_PRESETS: ReadonlyArray<StampStyleChoice & { label: stri
   },
   {
     presetId: "study-book",
-    label: "书页印",
-    description: "适合阅读、整理和需要回看的学习记录。",
     outline: "round",
     color: "coral",
     icon: "book",
@@ -84,8 +57,6 @@ export const STAMP_STYLE_PRESETS: ReadonlyArray<StampStyleChoice & { label: stri
   },
   {
     presetId: "science-atom",
-    label: "原子印",
-    description: "适合实验、推导和需要拆解的问题。",
     outline: "scallop",
     color: "blue",
     icon: "atom",
@@ -93,8 +64,6 @@ export const STAMP_STYLE_PRESETS: ReadonlyArray<StampStyleChoice & { label: stri
   },
   {
     presetId: "botanical-leaf",
-    label: "叶片印",
-    description: "适合长期积累、复习和慢慢长出来的进展。",
     outline: "seal",
     color: "sage",
     icon: "leaf",
@@ -102,8 +71,6 @@ export const STAMP_STYLE_PRESETS: ReadonlyArray<StampStyleChoice & { label: stri
   },
   {
     presetId: "quiet-spark",
-    label: "闪光印",
-    description: "适合留下一个突然想通、完成或值得记住的片段。",
     outline: "ticket",
     color: "amber",
     icon: "spark",
@@ -219,18 +186,8 @@ export function styleScopeKey(task: Pick<StampTaskLike, "subject" | "kind">): st
 }
 
 export function presetStampStyle(presetId = "source-only"): StampStyleChoice {
-  const preset = STAMP_STYLE_PRESETS.find((item) => item.presetId === presetId) ?? STAMP_STYLE_PRESETS[0];
+  const preset = LEGACY_STAMP_STYLES.find((item) => item.presetId === presetId) ?? LEGACY_STAMP_STYLES[0];
   return { presetId: preset.presetId, outline: preset.outline, color: preset.color, icon: preset.icon, showSource: preset.showSource };
-}
-
-export function createStampStyleAssignment(
-  task: Pick<StampTaskLike, "subject" | "kind">,
-  choice: Partial<StampStyleChoice> & { presetId?: string } = {},
-  selectedAt = Date.now(),
-): StampStyleAssignment {
-  const preset = presetStampStyle(choice.presetId ?? "source-only");
-  const selected = { ...preset, ...choice } as StampStyleChoice;
-  return { ...selected, scopeKey: styleScopeKey(task), selectedAt };
 }
 
 export function resolveStampStyle(
@@ -272,20 +229,6 @@ export function stampSourcePreset(task: Pick<StampTaskLike, "subject" | "kind">)
   if (match(/阅读|论文|科研|reading|literature|research/)) return fixed("source-reading", "sage", "mountain");
   if (match(/生活|休息|运动|life|coffee|rest/)) return fixed("source-life", "brown", "coffee");
   return presetStampStyle();
-}
-
-/** @deprecated DIY 入口已移除；保留函数签名以兼容旧数据和旧调用方。 */
-export function shouldPromptStampStyle(
-  task: Pick<StampTaskLike, "subject" | "kind">,
-  priorCompletedTaskIds: readonly string[],
-  assignments?: Readonly<Record<string, StampStyleChoice | StampStyleAssignment>>,
-  taskId?: string,
-): boolean {
-  void task;
-  void priorCompletedTaskIds;
-  void assignments;
-  void taskId;
-  return false;
 }
 
 function normalizedLogDate(log: StampFocusLogLike): string | undefined {

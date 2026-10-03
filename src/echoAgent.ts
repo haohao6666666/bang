@@ -32,6 +32,7 @@ export type DailyEchoInput = {
 
 export type DailyEchoDraft = {
   status: EchoDraftStatus;
+  sourceNote?: string;
   quiet: boolean;
   facts: Array<{ id: string; text: string; evidenceRefs: EvidenceRef[] }>;
   signals: Array<{
@@ -51,6 +52,9 @@ export type DailyEchoDraft = {
     savedAt: number;
     url: string;
     evidenceRefs: EvidenceRef[];
+    usefulPart?: string;
+    applicableWhen?: string;
+    limitation?: string;
   }>;
   tomorrowExperiments: Array<{
     id: string;

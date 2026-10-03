@@ -1,0 +1,39 @@
+.activity-distribution { margin-top: 9px; padding: 20px 0 4px; border-top: 1px solid #dedbcbbb; color: #42463c; }
+.activity-distribution-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.activity-distribution-header h3 { margin: 4px 0 0; font-size: 17px; line-height: 1.4; font-weight: 650; letter-spacing: .04em; }
+.activity-distribution-kicker { font-size: 8px; font-weight: 650; letter-spacing: .15em; color: #8a806e; }
+.activity-distribution-count { padding: 6px 8px; border: 1px solid #ded9c9; border-radius: 20px; color: #807862; font-size: 10px; white-space: nowrap; }
+.activity-distribution-overview { display: grid; grid-template-columns: minmax(130px, 1.15fr) minmax(108px, 1fr); align-items: center; gap: 16px; padding: 17px 0 15px; }
+.activity-ring { position: relative; width: 100%; max-width: 180px; aspect-ratio: 1; }
+.activity-ring svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.activity-ring-guide { fill: none; stroke: #dbd6c5; stroke-width: .8; stroke-dasharray: 1 5; }
+.activity-ring-track { fill: none; stroke: #e8e4d8; stroke-width: 17; }
+.activity-ring-segment { fill: none; stroke-width: 17; transition: opacity 180ms ease, stroke-width 180ms ease; }
+.activity-distribution-overview.has-selection .activity-ring-segment:not(.is-selected) { opacity: .24; }
+.activity-ring-segment.is-selected { stroke-width: 21; }
+.activity-ring-center { position: absolute; inset: 24%; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; }
+.activity-ring-center small { color: #827d6b; font-size: 9px; line-height: 1.6; }
+.activity-ring-center strong { margin: 2px 0 0; color: #424e3e; font-family: Georgia, "Times New Roman", serif; font-size: 33px; font-weight: 500; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.activity-ring-center span { margin-top: 2px; color: #827d6b; font-size: 9px; white-space: nowrap; }
+.activity-distribution-story { min-width: 0; padding-right: 2px; }
+.activity-distribution-story strong { display: block; color: #515844; font-size: 13px; line-height: 1.8; font-weight: 600; overflow-wrap: anywhere; }
+.activity-story-sprout { display: inline-block; margin-bottom: 5px; color: #b39863; font-size: 20px; line-height: 1; }
+.activity-story-dot { display: block; width: 10px; height: 10px; margin: 0 0 10px; border-radius: 50%; box-shadow: 0 0 0 5px #fff8; }
+.activity-distribution-story p { margin: 6px 0 0; color: #827b69; font-size: 10px; line-height: 1.8; }
+.jixiang-shell .activity-distribution-story button { min-height: 32px; margin-top: 7px; padding: 0; background: transparent; color: #586f58; font-size: 10px; text-align: left; }
+.activity-distribution-story button span { margin-left: 3px; }
+.activity-distribution-legend { display: grid; gap: 5px; }
+.jixiang-shell .activity-distribution-legend button { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto 33px; gap: 8px; align-items: center; min-height: 42px; width: 100%; padding: 8px 9px; border: 1px solid transparent; border-radius: 12px; background: #fff9; color: #5e5e50; text-align: left; transition: background 180ms ease, border-color 180ms ease; }
+.jixiang-shell .activity-distribution-legend button[aria-pressed="true"] { background: #fffef8; border-color: var(--activity-color); box-shadow: 0 2px 7px #69604a08; }
+.activity-legend-color { width: 9px; height: 9px; border-radius: 3px; background: var(--activity-color); box-shadow: 0 0 0 3px #fff8; }
+.activity-legend-label { font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.activity-legend-duration { font-size: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.activity-legend-percentage { color: #7f7969; font-size: 10px; text-align: right; font-variant-numeric: tabular-nums; }
+.activity-distribution button:focus-visible { outline: 2px solid #678461; outline-offset: 3px; }
+@media (hover: hover) {
+  .jixiang-shell .activity-distribution-legend button:hover { background: #fffefb; border-color: #d9d4c3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-distribution *, .activity-distribution *::before, .activity-distribution *::after { transition: none !important; animation: none !important; }
+}
+.reduce-motion .activity-distribution * { transition: none !important; animation: none !important; }

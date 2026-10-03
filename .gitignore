@@ -6,3 +6,7 @@ qa/
 .DS_Store
 *.log
 .vite/
+.local/
+.env
+.env.*
+!.env.example

@@ -1,0 +1,100 @@
+{
+  "converted": 9,
+  "expected": 9,
+  "sourceBytes": 15763223,
+  "deliveredBytes": 10650258,
+  "savedBytes": 5112965,
+  "savedPercent": 32.44,
+  "images": [
+    {
+      "id": "puppy-welcome",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 1939589,
+      "deliveredBytes": 1335992,
+      "sourceSha256": "fdbc7589fee205f8b070898c4d6917da3939cc3626f1818d15e93dc81243b3b6",
+      "pixelIdentical": true
+    },
+    {
+      "id": "puppy-reading",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 1787819,
+      "deliveredBytes": 1212784,
+      "sourceSha256": "fd65f0619874e328c9b238b37318a61d3d39b46b02d3f89549e02e61ebaa2844",
+      "pixelIdentical": true
+    },
+    {
+      "id": "puppy-thinking",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 1477824,
+      "deliveredBytes": 983844,
+      "sourceSha256": "cab6a2abe1c7320f3450ad9a295b4ab1beefc166baf23c67f2e840c1721f6130",
+      "pixelIdentical": true
+    },
+    {
+      "id": "puppy-resting",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 1753452,
+      "deliveredBytes": 1172412,
+      "sourceSha256": "b1a1f552a517bb6752322b623776441215b6ea4b164ef8a3bbca6f8f959f039a",
+      "pixelIdentical": true
+    },
+    {
+      "id": "puppy-cheering",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 1725720,
+      "deliveredBytes": 1169604,
+      "sourceSha256": "5ef41f8b52a38966e343d66fddc63d5efd4373beeed821fdb299b3249321be92",
+      "pixelIdentical": true
+    },
+    {
+      "id": "puppy-journaling",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 1591587,
+      "deliveredBytes": 1075656,
+      "sourceSha256": "e0a8bd2cd75d0505d7f75806b7ebb5160e2692963005a461abf755cdda54f2f0",
+      "pixelIdentical": true
+    },
+    {
+      "id": "sprout",
+      "width": 1254,
+      "height": 1254,
+      "alpha": true,
+      "sourceBytes": 924911,
+      "deliveredBytes": 585304,
+      "sourceSha256": "c1134252b761ea50e9df11ff0d412fdbb7fda49a87d490fb0f393745bf2feccc",
+      "pixelIdentical": true
+    },
+    {
+      "id": "landscape",
+      "width": 2172,
+      "height": 724,
+      "alpha": true,
+      "sourceBytes": 2105637,
+      "deliveredBytes": 1486676,
+      "sourceSha256": "d0157aec2087305b898e70b1e78c654219043779484d85377256d7fc8a413e4b",
+      "pixelIdentical": true
+    },
+    {
+      "id": "books-tea",
+      "width": 1536,
+      "height": 1024,
+      "alpha": true,
+      "sourceBytes": 2456684,
+      "deliveredBytes": 1627986,
+      "sourceSha256": "52825f0ad0163244838f94fccd44447acca2cba07de287e19dc69d1c4fd86521",
+      "pixelIdentical": true
+    }
+  ]
+}

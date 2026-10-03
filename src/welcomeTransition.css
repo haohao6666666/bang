@@ -1,0 +1,29 @@
+.app-experience { position:absolute; inset:0; }
+.welcome-transition { position:absolute; inset:0; z-index:65; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:70px 26px 52px; overflow:hidden; background:radial-gradient(ellipse at 82% 20%,#e6ebd9 0,transparent 45%),radial-gradient(ellipse at 8% 88%,#f5ddc8 0,transparent 42%),#fcf8ed; color:#526647; transform-origin:0 50%; animation:welcome-cover 2.1s cubic-bezier(.23,1,.32,1) both; }
+.welcome-paper-edge { position:absolute; inset:25px 13px 24px; border:1px solid #b7b79840; border-radius:38px 38px 28px 28px; pointer-events:none; }
+.welcome-paper-edge::before { content:""; position:absolute; top:36px; bottom:30px; left:9px; width:1px; background:linear-gradient(transparent,#baa88845,transparent); }
+.welcome-brand { display:grid; grid-template-columns:37px auto; align-items:center; gap:0 8px; animation:welcome-rise .5s both; }
+.welcome-brand img { grid-row:1/3; width:36px; height:48px; }
+.welcome-brand>span { font-family:"KaiTi","STKaiti",serif; font-size:35px; letter-spacing:6px; line-height:1.1; }
+.welcome-brand>small { font-size:9px; color:#7f896f; letter-spacing:1px; margin-top:7px; }
+.welcome-scene { position:relative; width:252px; height:258px; margin:27px 0 12px; display:grid; place-items:center; }
+.welcome-orbit { position:absolute; width:225px; height:225px; border:1px dashed #9eaf8380; border-radius:50%; transform:rotate(-15deg); background:radial-gradient(#f9edcf66,transparent 70%); }
+.welcome-orbit::after { content:""; position:absolute; top:20px; left:40px; width:12px; height:21px; border-radius:90% 0 90% 0; background:#a6b17d; transform:rotate(-30deg); }
+.welcome-puppy { position:relative; width:238px; height:238px; animation:welcome-puppy .75s cubic-bezier(.16,1,.3,1) both; }
+.welcome-spark { position:absolute; z-index:1; color:#c39459; font-size:24px; animation:welcome-rise .6s .1s both; }
+.welcome-spark.one { top:16px; right:9px; }.welcome-spark.two { bottom:35px; left:8px; font-size:14px; color:#87a0a8; }
+.welcome-label { position:absolute; bottom:0; right:6px; padding:7px 12px; border:1px solid #d8c4a365; background:#fff8e8; box-shadow:0 3px 9px #a5854510; transform:rotate(-5deg); font-family:"KaiTi",serif; color:#92734e; font-size:13px; }
+.welcome-transition h1 { font-size:29px; font-weight:500; text-align:center; line-height:1.6; color:#506048; animation:welcome-rise .65s .1s both; }
+.welcome-caption { margin-top:10px!important; color:#81836e; font-size:10px; line-height:1.8; text-align:center; animation:welcome-rise .65s .15s both; }
+.welcome-path { display:flex; align-items:center; gap:9px; margin-top:25px; font-size:10px; color:#837260; }
+.welcome-path span:nth-of-type(2) { color:#527888; }.welcome-path span:nth-of-type(3) { color:#897199; }.welcome-path span:nth-of-type(4) { color:#6d8556; }
+.welcome-path i { display:block; width:16px; height:1px; background:#bbb79d80; }
+.welcome-enter { display:flex; align-items:center; justify-content:center; gap:16px; min-width:152px; min-height:44px; margin-top:28px; padding:10px 21px; border:1px solid #cdd5b9; border-radius:100px; background:#fefbf4; color:#5c714b; font-size:12px; box-shadow:0 4px 14px #52664708; }
+.welcome-enter svg { width:15px; height:15px; }
+.welcome-footer { margin-top:20px; font-family:"KaiTi",serif; font-size:11px; color:#a3987d; letter-spacing:1px; }
+@keyframes welcome-rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes welcome-puppy { from { opacity:0; transform:translateY(18px) rotate(-5deg) scale(.94); } to { opacity:1; transform:translateY(0) rotate(0) scale(1); } }
+@keyframes welcome-cover { 0%,78% { opacity:1; transform:none; } 100% { opacity:0; transform:translateY(-18px) rotate(-2deg) scale(1.02); } }
+.reduce-motion .welcome-transition { display:none; }
+@media(prefers-reduced-motion:reduce) { .welcome-transition { display:none; }.welcome-transition * { animation:none!important; } }
+@container(max-height:740px) { .welcome-scene { height:195px; width:210px; margin:15px 0 10px; }.welcome-puppy { width:195px; height:195px; }.welcome-orbit { width:180px; height:180px; }.welcome-path { margin-top:15px; }.welcome-enter { margin-top:16px; } }

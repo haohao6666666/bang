@@ -1,0 +1,177 @@
+{
+  "tool": "built-in image_gen",
+  "model": "The tool does not expose the exact model.",
+  "assets": [
+    {
+      "id": "puppy-welcome",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: illustration-story. Asset type: transparent standalone mascot artwork for the existing Jixiang journaling app's home hero.\nInput image 1 is a REFERENCE ONLY for the mascot identity and art medium. Redraw original standalone artwork; do not crop or reproduce the board layout.\nSubject: the reference's adorable cream puppy with floppy chocolate-brown ears, tiny sage two-leaf sprout atop its head, round dark eyes and rosy cheeks. It leans happily with chin and one paw over two stacked books, one sage-green spine and one soft-apricot spine. Cozy friendly expression. Clearly a floppy-eared DOG, not a cat.\nStyle: delightful premium editorial storybook gouache and colored pencil, refined soft painterly edges and delicate warm brown drawing, warm cream fur, tasteful sage, soft apricot and dusty teal accents. Enough clean silhouette contrast on cream UI. Beautifully art directed, no crude clip-art.\nComposition: one centered character plus the two books only, complete anatomy, no cropping, tightly occupies about 85% of a 1024x1024 square canvas.\nBackground: genuinely transparent alpha, no white rectangle, no scenery, no background, no floor, at most very small contact shade.\nConstraints: no text, letters, labels, watermark, UI, mockup, sticker outline, 3D plastic, reference board fragments, speech bubble, frame or panel. Blank book covers with no writing.",
+      "reference": "artwork/reference/jixiang-design-board.jpg",
+      "original": "artwork/companion-originals/puppy-welcome.png",
+      "delivery": "public/assets/companions-v3/puppy-welcome.webp",
+      "generatedOriginal": "C:/Users/dazuijing/.codex/generated_images/01a0feb3-0030-79e2-bce5-fa1b6dc9ac73/exec-1ef1ab16-063c-4968-a57e-bfb488afc8c0.png",
+      "verification": {
+        "id": "puppy-welcome",
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "sourceBytes": 1939589,
+        "deliveredBytes": 1335992,
+        "sourceSha256": "fdbc7589fee205f8b070898c4d6917da3939cc3626f1818d15e93dc81243b3b6",
+        "pixelIdentical": true
+      }
+    },
+    {
+      "id": "puppy-reading",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: illustration-story. Asset type: transparent standalone mascot artwork for the existing Jixiang journaling app's focus screen.\nInput image 1 is a REFERENCE ONLY for the mascot identity and art medium. Redraw original standalone artwork; do not crop or reproduce the board layout.\nSubject: the reference's adorable cream puppy with floppy chocolate-brown ears, tiny sage two-leaf sprout atop its head, round dark eyes and rosy cheeks. Seated holding an open dusty-blue book with both front paws, absorbed happy expression looking gently down at the pages. Full body with two rounded feet and small tail visible, one small sage leaf beside its feet. Clearly a floppy-eared DOG, not a cat.\nStyle: delightful premium editorial storybook gouache and colored pencil, refined soft painterly edges and delicate warm brown drawing, warm cream fur, tasteful dusty blue with sage and soft apricot accents. Enough clean silhouette contrast on cream UI. Beautifully art directed, no crude clip-art.\nComposition: one centered puppy plus its book and one leaf only, complete anatomy, no cropping, tightly occupies about 85% of a 1024x1024 square canvas.\nBackground: genuinely transparent alpha, no white rectangle, no scenery, no background, no floor, at most very small contact shade.\nConstraints: no text, letters, labels, watermark, UI, mockup, sticker outline, 3D plastic, reference board fragments, speech bubble, frame or panel. Blank book pages and cover, no writing.",
+      "reference": "artwork/reference/jixiang-design-board.jpg",
+      "original": "artwork/companion-originals/puppy-reading.png",
+      "delivery": "public/assets/companions-v3/puppy-reading.webp",
+      "generatedOriginal": "C:/Users/dazuijing/.codex/generated_images/01a0feb3-0030-79e2-bce5-fa1b6dc9ac73/exec-eee52f02-1a9b-4ff8-a407-c9e4cd029653.png",
+      "verification": {
+        "id": "puppy-reading",
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "sourceBytes": 1787819,
+        "deliveredBytes": 1212784,
+        "sourceSha256": "fd65f0619874e328c9b238b37318a61d3d39b46b02d3f89549e02e61ebaa2844",
+        "pixelIdentical": true
+      }
+    },
+    {
+      "id": "puppy-thinking",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: illustration-story. Asset type: transparent standalone mascot artwork for the existing Jixiang journaling app's reflection and echo screen.\nInput image 1 is a REFERENCE ONLY for the mascot identity and art medium. Redraw original standalone artwork; do not crop or reproduce the board layout.\nSubject: the reference's adorable cream puppy with floppy chocolate-brown ears, tiny sage two-leaf sprout atop its head, round dark eyes and rosy cheeks. The puppy sits with one front paw touching its cheek, thoughtful tilted head looking slightly upward, sweet calm smile. Full body with two rounded feet and small tail visible. One tiny warm-gold sparkle floats near the head. Clearly a floppy-eared DOG, not a cat.\nStyle: delightful premium editorial storybook gouache and colored pencil, refined soft painterly edges and delicate warm brown drawing, warm cream fur, tasteful sage, soft apricot and warm gold accents. Enough clean silhouette contrast on cream UI. Beautifully art directed, no crude clip-art.\nComposition: one centered puppy and one tiny sparkle only, complete anatomy, no cropping, tightly occupies about 85% of a 1024x1024 square canvas.\nBackground: genuinely transparent alpha, no white rectangle, no scenery, no background, no floor, at most very small contact shade.\nConstraints: no question marks, no text, letters, labels, watermark, UI, mockup, sticker outline, 3D plastic, reference board fragments, speech bubble, frame or panel.",
+      "reference": "artwork/reference/jixiang-design-board.jpg",
+      "original": "artwork/companion-originals/puppy-thinking.png",
+      "delivery": "public/assets/companions-v3/puppy-thinking.webp",
+      "generatedOriginal": "C:/Users/dazuijing/.codex/generated_images/01a0feb3-0030-79e2-bce5-fa1b6dc9ac73/exec-877412c8-8dbf-48ce-ac94-6559475e3258.png",
+      "verification": {
+        "id": "puppy-thinking",
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "sourceBytes": 1477824,
+        "deliveredBytes": 983844,
+        "sourceSha256": "cab6a2abe1c7320f3450ad9a295b4ab1beefc166baf23c67f2e840c1721f6130",
+        "pixelIdentical": true
+      }
+    },
+    {
+      "id": "puppy-resting",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: illustration-story. Asset type: standalone transparent mascot illustration for a premium gentle Chinese personal growth app. Input image: character and hand-painted art STYLE REFERENCE ONLY; redraw a new independent artwork, do not crop/copy the board or its text. Subject: one adorable cream-colored floppy dark chocolate-eared PUPPY, tiny sage two-leaf sprout growing atop its head, rosy cheeks and a tiny chocolate nose. Puppy is napping curled peacefully, eyes closed in a soft smile, on one small dusty-lavender cushion. One tiny floating muted ochre crescent beside the puppy. Style: premium editorial storybook gouache and colored-pencil detail, warm cream fur, tactile subtle paper-like pigment WITHIN the painted silhouette, soft painterly edges, graceful coherent anatomy and paws. Composition: 1024x1024 square, entire body and cushion visible, centered occupying about 85% of canvas, usable at small UI sizes. Backdrop: actual transparent alpha outside the illustration, no white rectangle, no paper page, no checkerboard baked into image, no environment or landscape. Palette: cream, muted lavender, warm chocolate, sage, restrained apricot. No text, symbols resembling letters, watermark, border, sticker outline, 3D or plastic, cat, bright gold or excessive decoration. Only tiny contact shade between puppy and cushion, no broad floor shadow.",
+      "reference": "artwork/reference/jixiang-design-board.jpg",
+      "original": "artwork/companion-originals/puppy-resting.png",
+      "delivery": "public/assets/companions-v3/puppy-resting.webp",
+      "generatedOriginal": "C:/Users/dazuijing/.codex/generated_images/01a0feb3-722a-7731-a789-40bf416dc946/exec-96540673-04dd-401b-ab02-5f901a01cda0.png",
+      "verification": {
+        "id": "puppy-resting",
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "sourceBytes": 1753452,
+        "deliveredBytes": 1172412,
+        "sourceSha256": "b1a1f552a517bb6752322b623776441215b6ea4b164ef8a3bbca6f8f959f039a",
+        "pixelIdentical": true
+      }
+    },
+    {
+      "id": "puppy-cheering",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: illustration-story. Asset type: standalone transparent mascot illustration for a premium gentle Chinese personal growth app. Input image: character and hand-painted art STYLE REFERENCE ONLY; redraw a new independent artwork, do not crop/copy the board or any text. Subject: one adorable cream-colored floppy dark chocolate-eared PUPPY, tiny sage two-leaf sprout growing atop its head, rosy cheeks, shiny dark round eyes and a tiny chocolate nose. Puppy sits upright full-body with both little front paws raised beside its smiling face in quiet encouragement, back paws visible. One tiny floating soft-apricot sparkle. Style: premium editorial storybook gouache and colored-pencil detail, warm cream fur, tactile subtle paper-like pigment WITHIN painted silhouette, soft painterly edges, graceful coherent anatomy. Composition: 1024x1024 square, complete puppy all body and paws visible, centered occupying about 85% of canvas with breathing room, readable in small UI sizes. Backdrop: actual transparent alpha outside the illustration, no white rectangle, no paper page, no checkerboard baked into image, no environment or landscape. Palette: cream, dark chocolate, sage, warm rosy pink and restrained apricot. No text, symbols resembling letters, watermark, border, sticker outline, 3D or plastic, cat, bright gold or excessive decoration. Tiny contact shade only, no broad floor shadow.",
+      "reference": "artwork/reference/jixiang-design-board.jpg",
+      "original": "artwork/companion-originals/puppy-cheering.png",
+      "delivery": "public/assets/companions-v3/puppy-cheering.webp",
+      "generatedOriginal": "C:/Users/dazuijing/.codex/generated_images/01a0feb3-722a-7731-a789-40bf416dc946/exec-e2b58a10-2026-4237-ae39-994de99befe4.png",
+      "verification": {
+        "id": "puppy-cheering",
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "sourceBytes": 1725720,
+        "deliveredBytes": 1169604,
+        "sourceSha256": "5ef41f8b52a38966e343d66fddc63d5efd4373beeed821fdb299b3249321be92",
+        "pixelIdentical": true
+      }
+    },
+    {
+      "id": "puppy-journaling",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: illustration-story. Asset type: standalone transparent mascot illustration for a premium gentle Chinese personal growth app. Input image: character and hand-painted art STYLE REFERENCE ONLY; redraw a new independent artwork, do not crop/copy the board or any text. Subject: one adorable cream-colored floppy dark chocolate-eared PUPPY, tiny sage two-leaf sprout growing atop its head, rosy cheeks, soft dark round eyes and tiny chocolate nose. Puppy sits gently writing with one terracotta colored pencil held in its front paw into an open ivory journal with a muted lilac cover, looking down focused with a content expression. Both back paws partly visible beside the journal. One small sage sprig tucked beside the book. Style: premium editorial storybook gouache and colored-pencil detail, warm cream fur, tactile subtle paper-like pigment WITHIN painted silhouette, soft painterly edges, graceful coherent anatomy. Composition: 1024x1024 square, complete puppy and book all visible, centered occupying about 85% of canvas with breathing room, readable in small UI sizes. Backdrop: actual transparent alpha outside the illustration, no white rectangle, no paper page background, no checkerboard baked into image, no environment or landscape. Palette: cream, dark chocolate, sage, warm rosy pink, terracotta and dusty lilac. Blank journal pages only, absolutely no text or visible writing, no watermark, border, sticker outline, 3D or plastic, cat, bright gold or excessive decoration. Tiny contact shade between paws and journal only, no broad floor shadow.",
+      "reference": "artwork/reference/jixiang-design-board.jpg",
+      "original": "artwork/companion-originals/puppy-journaling.png",
+      "delivery": "public/assets/companions-v3/puppy-journaling.webp",
+      "generatedOriginal": "C:/Users/dazuijing/.codex/generated_images/01a0feb3-722a-7731-a789-40bf416dc946/exec-6b511480-76d9-4ba8-94c6-27158718a88f.png",
+      "verification": {
+        "id": "puppy-journaling",
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "sourceBytes": 1591587,
+        "deliveredBytes": 1075656,
+        "sourceSha256": "e0a8bd2cd75d0505d7f75806b7ebb5160e2692963005a461abf755cdda54f2f0",
+        "pixelIdentical": true
+      }
+    },
+    {
+      "id": "landscape",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: illustration-story. Create ONE independent wide landscape illustration asset for the calm Chinese personal journaling app 迹向, using the attached board ONLY as watercolor style reference, not as an edit target. Redraw a beautiful small winding warm-ivory path through sage and moss green hills, pale dusty blue distant mountains, soft apricot sun, a few small wildflowers and one tiny blank wooden direction sign. Premium editorial gouache and colored-pencil texture, warm luminous optimistic morning. Wide panorama, aspect ratio about3:1, center landscape composition, all forms fully visible, natural softly feathered silhouette edges. Genuinely transparent alpha canvas outside landscape silhouettes: no rectangular white backdrop, no frame, no text, no labels, no watermark, no puppy, no UI. Output standalone landscape, never a cropped section of the reference sheet. Should look crafted for a bottom-of-page quiet illustration, readable at350x120px.",
+      "reference": "artwork/reference/jixiang-illustrations.jpg",
+      "original": "artwork/companion-originals/landscape.png",
+      "delivery": "public/assets/companions-v3/landscape.webp",
+      "generatedOriginal": "C:\\Users\\dazuijing\\.codex\\generated_images\\01a0fd8a-8b78-76e0-ba59-b76f301a1496\\exec-c5e59c4d-28b5-4561-a99d-5cca45a394ce.png",
+      "verification": {
+        "id": "landscape",
+        "width": 2172,
+        "height": 724,
+        "alpha": true,
+        "sourceBytes": 2105637,
+        "deliveredBytes": 1486676,
+        "sourceSha256": "d0157aec2087305b898e70b1e78c654219043779484d85377256d7fc8a413e4b",
+        "pixelIdentical": true
+      }
+    },
+    {
+      "id": "books-tea",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: illustration-story. A single independent premium editorial watercolor/gouache illustration for calm journal app 迹向. Attached image is only style/reference inspiration. Redraw a beautiful still life: three small stacked books in sage green, dusty blue and peach cloth covers, a creamy ceramic mug with a tiny two-leaf sprout motif and a curl of steam, one simple green leafy branch. Composition wide about3:2, bookstack left and teacup right, full objects not cropped, quiet literary atmosphere, softly saturated natural colors, paper grain pencil outlines. Actual transparent alpha background, no white rectangle, no shadows outside small contactshades, no backdrop, no shelf, no labels, no text anywhere, no watermark, no mockup. Standalone high quality art to place on pale lavender and cream panels in the UI. Do not output the reference board or crop it. Keep foreground light/dark contrast visible.",
+      "reference": "artwork/reference/jixiang-illustrations.jpg",
+      "original": "artwork/companion-originals/books-tea.png",
+      "delivery": "public/assets/companions-v3/books-tea.webp",
+      "generatedOriginal": "C:\\Users\\dazuijing\\.codex\\generated_images\\01a0fd8a-8b78-76e0-ba59-b76f301a1496\\exec-27768e5b-6e0b-4e23-89ff-c33e3dc51342.png",
+      "verification": {
+        "id": "books-tea",
+        "width": 1536,
+        "height": 1024,
+        "alpha": true,
+        "sourceBytes": 2456684,
+        "deliveredBytes": 1627986,
+        "sourceSha256": "52825f0ad0163244838f94fccd44447acca2cba07de287e19dc69d1c4fd86521",
+        "pixelIdentical": true
+      }
+    },
+    {
+      "id": "sprout",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: logo-brand. Redraw a single small two-leaf sprout brand illustration matching the botanical sprout in the reference board for Chinese journaling app 迹向. Reference only, no copying board. One slightly curved dark olive stem, two plump asymmetrical sage and olive leaves, subtle painted gouache grain, simple bold readable silhouette at28px. Warm friendly natural handcrafted look, no words or text, no soil mound, no pot, no circle or frame, no background, no shadow, no UI, no stickers, no white border. Single centered sprout fills85% of square canvas. Real transparent alpha background, fully isolated independent image asset.",
+      "reference": "artwork/reference/jixiang-illustrations.jpg",
+      "original": "artwork/companion-originals/sprout.png",
+      "delivery": "public/assets/companions-v3/sprout.webp",
+      "generatedOriginal": "C:\\Users\\dazuijing\\.codex\\generated_images\\01a0fd8a-8b78-76e0-ba59-b76f301a1496\\exec-f5a617a0-37a4-4da3-8bcf-4d4b95091c9d.png",
+      "verification": {
+        "id": "sprout",
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "sourceBytes": 924911,
+        "deliveredBytes": 585304,
+        "sourceSha256": "c1134252b761ea50e9df11ff0d412fdbb7fda49a87d490fb0f393745bf2feccc",
+        "pixelIdentical": true
+      }
+    }
+  ]
+}
