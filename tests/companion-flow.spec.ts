@@ -7,7 +7,7 @@ test('phone: custom focus, pause without form, native input, saved work and thre
  await expect(page.getByRole('navigation',{name:'主要导航'}).getByRole('button')).toHaveCount(3);
  await page.getByRole('button',{name:'＋ 添加一个想做的事'}).click();
  await page.getByLabel('添加今日任务').fill('画一只小狗');
- await expect(page.getByTestId('keyboard-dock')).toHaveAttribute('data-visible','false');
+ await expect(page.getByTestId('keyboard-dock')).toHaveCount(0);
  await page.getByLabel('专注时长（分钟）').fill('17');
  await page.getByRole('button',{name:'加入路线',exact:true}).click();
  await expect(page.locator('.task-copy')).toContainText('17 分钟');
@@ -78,7 +78,7 @@ test('focus stops at the chosen duration without completing the task; deferral p
  await page.getByRole('button',{name:'开始投入',exact:true}).click();await page.clock.runFor(61000);
  await expect(page.locator('.focus-card')).toHaveAttribute('data-focus-status','paused');
  await expect(page.getByLabel('本次剩余时间')).toHaveText('00:00');
- let state=await page.evaluate(()=>JSON.parse(localStorage.getItem('jixiang-prototype-state-v5')!));expect(state.focusLogs[0].durationMs).toBe(60000);expect(state.tasks[0].status).not.toBe('completed');
+ await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('jixiang-prototype-state-v5')!).focusLogs[0]?.durationMs)).toBe(60000);let state=await page.evaluate(()=>JSON.parse(localStorage.getItem('jixiang-prototype-state-v5')!));expect(state.tasks[0].status).not.toBe('completed');
  await page.getByRole('button',{name:'结束',exact:true}).click();await page.getByRole('button',{name:'明天再做',exact:true}).click();await page.reload();
  await expect(page.locator('.route-list .task-row')).toHaveCount(0);await page.getByText('留到以后',{exact:true}).click();await expect(page.locator('.deferred-tasks')).toContainText('画画');await page.getByRole('button',{name:'今天做',exact:true}).click();await expect(page.locator('.route-list .task-row')).toHaveCount(1);
 });

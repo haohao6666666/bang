@@ -46,7 +46,7 @@ test('native chat remains within the panned keyboard viewport and restores after
   await expect.poll(()=>page.locator('.phone-stage').evaluate(el=>Math.round(el.getBoundingClientRect().height))).toBe(844);
   await page.evaluate(()=>(window as any).moveNativeViewport(844,90));
   await expect.poll(()=>page.locator('.phone-stage').evaluate(el=>Math.round(el.getBoundingClientRect().top))).toBe(0);
-  await expect(page.getByTestId('keyboard-dock')).toHaveAttribute('data-visible','false');
+  await expect(page.getByTestId('keyboard-dock')).toHaveCount(0);
   await expect(page.getByTestId('bottom-sheet')).toHaveCount(0);
   await expect(page.getByRole('navigation',{name:'主要导航'})).toBeVisible();
 });
@@ -71,9 +71,13 @@ test('all product input sheets keep the underlying page steady on repeated openi
  await page.goto('/');
  await page.getByRole('navigation').getByRole('button',{name:'足迹',exact:true}).click();
  await page.getByRole('button',{name:'查看 2026-10-03 的记录'}).click();
+ // Finish the day-page entrance before measuring its resting scroll position.
+ await page.clock.runFor(450);
  const background=page.locator('.app-screen .mobile-scroll');
- const initial=await background.evaluate(el=>({height:el.clientHeight,top:el.scrollTop}));
  await page.getByRole('button',{name:'日记与成果'}).click();
+ // Measure after the browser has brought the clicked trigger into view;
+ // the regression under test is input/keyboard movement, not click scrolling.
+ const initial=await background.evaluate(el=>({height:el.clientHeight,top:el.scrollTop}));
  await page.getByRole('button',{name:'写便签',exact:true}).click();
  await page.getByLabel('便签内容').fill('下次接着画尾巴。');
  await page.evaluate(()=>(window as any).moveNativeViewport(390,180));
@@ -93,4 +97,5 @@ test('all product input sheets keep the underlying page steady on repeated openi
    await expect.poll(()=>background.evaluate(el=>({height:el.clientHeight,top:el.scrollTop}))).toEqual(initial);
  }
 });
+
 

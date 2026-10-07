@@ -1,0 +1,126 @@
+/* Real browsers share the paper UI; layout depends on space, never a simulated phone. */
+.web-stage { height:var(--native-page-height,100%); }
+.web-screen { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+.web-screen .tab-panel,.web-screen .paper-card,.web-screen .today-workspace,
+.web-screen .today-sidebar,.web-screen .task-row,.web-screen .day-detail-page { min-width:0; }
+.today-workspace { display:flex; flex-direction:column; gap:16px; }
+.today-sidebar { display:contents; }
+.today-workspace>.route-card { order:2; }
+.today-sidebar>.next-step-card { order:1; }
+.today-sidebar>.today-footnote { order:3; }
+.today-sidebar>.companion-invite { order:4; }
+.today-sidebar>.task-close-actions { order:5; }
+
+/* SVG dots keep their size with HarmonyOS/Android fonts and WeChat text scaling. */
+.web-screen .task-row { grid-template-columns:18px 26px minmax(0,1fr) 40px!important; gap:8px; }
+.web-screen .task-actions { align-self:center; }
+.web-screen .task-more-button {
+  width:40px; height:40px; min-width:0; padding:0; line-height:1;
+  letter-spacing:0; appearance:none; -webkit-appearance:none; touch-action:manipulation;
+}
+.web-screen .task-more-button svg { display:block; width:20px; height:20px; fill:currentColor; pointer-events:none; }
+.web-screen .task-row.is-menu-open { z-index:4; }
+.web-screen .task-actions-menu { top:calc(100% + 4px); right:0; min-width:140px; }
+.web-screen .task-actions-menu button { min-height:42px; touch-action:manipulation; }
+.web-screen .task-copy strong,.web-screen .next-step-card strong { overflow-wrap:anywhere; }
+.web-screen .task-copy small { display:flex; flex-wrap:wrap; align-items:center; column-gap:3px; row-gap:4px; }
+.web-screen .task-category-select { min-width:0; padding:2px 0; color:#66786c; }
+.web-screen .activity-dot { flex-shrink:0; }
+.web-screen .task-close-actions { flex-wrap:wrap; row-gap:4px; }
+
+/* Long titles, filenames and statistics fit their paper rather than clipping. */
+.web-screen .works-gallery { align-items:start; grid-auto-rows:min-content; }
+.web-screen .work-card header { align-items:flex-start; flex-wrap:wrap; row-gap:6px; }
+.web-screen .work-card header strong { min-width:0; flex:1 1 160px; overflow-wrap:anywhere; line-height:1.6; }
+.web-screen .work-card header small { flex:0 0 auto; white-space:nowrap; }
+.web-screen .work-card footer { flex-wrap:wrap; }
+.web-screen .work-comparison summary,.web-screen .document-file,
+.web-screen .chat-composer>small,.web-screen .sheet-description { overflow-wrap:anywhere; }
+.web-screen .work-comparison figcaption { line-height:1.6; }
+.web-screen .day-card-tasks li>span { min-width:0; overflow-wrap:anywhere; }
+.web-screen .day-card-tasks li>b { flex:0 0 20px; text-align:right; }
+.web-screen .day-overview-task { grid-template-columns:24px minmax(0,1fr) auto; }
+.web-screen .day-overview-task strong { overflow-wrap:anywhere; }
+.web-screen .day-overview-task>span { white-space:nowrap; }
+.web-screen .day-heading,.web-screen .day-toolbar,.web-screen .notebook-heading,
+.web-screen .task-time-stats>header { flex-wrap:wrap; row-gap:8px; }
+.web-screen .activity-distribution-overview { grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:clamp(8px,2vw,16px); }
+.web-screen .activity-ring { min-width:0; }
+.web-screen .stamp-collection-category-tabs { flex-wrap:wrap; }
+.web-screen .stamp-collection-category-tabs button { min-height:44px; white-space:normal; line-height:1.5; }
+.web-screen .settings-choice-row,.web-screen .settings-data>div { flex-wrap:wrap; gap:10px; }
+.web-screen .settings-row>span { min-width:0; overflow-wrap:anywhere; }
+.web-screen .settings-row>input { flex-shrink:0; }
+.web-screen .focus-timer-ring { max-width:100%; }
+
+/* Give every product sheet the same warm paper and a clear way back. */
+.web-screen .product-sheet { background:#fffdf8; color:#46513f; touch-action:auto; box-shadow:0 -12px 36px #51453424; }
+.web-screen .product-sheet .sheet-title { font-weight:600; line-height:1.5; }
+.web-screen .product-sheet .sheet-header { padding-right:60px; }
+.web-screen .product-sheet .sheet-description { color:#7b806f; line-height:1.65; }
+.web-screen .product-sheet .sheet-handle { background:#c9ccbb; width:36px; height:4px; }
+.web-screen .product-sheet .sheet-content { min-height:0; overscroll-behavior:contain; touch-action:pan-y; }
+.web-screen .product-sheet-close {
+  position:absolute; z-index:3; top:30px; right:16px; display:grid; place-items:center;
+  width:36px; height:36px; padding:0; border:1px solid #e3e3d7; border-radius:12px;
+  background:#f3f2e8; color:#71816a; touch-action:manipulation;
+}
+.web-screen .product-sheet-close svg { width:16px; height:16px; }
+.web-screen .bottom-sheet.is-chat-sheet { display:flex; flex-direction:column; }
+.web-screen .bottom-sheet.is-chat-sheet>.sheet-content { display:flex; flex:1; min-height:0; overflow:hidden; }
+.web-screen .is-chat-sheet .companion-chat { display:flex; flex:1; flex-direction:column; min-height:0; }
+.web-screen .is-chat-sheet .chat-timeline { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y; }
+.web-screen .is-chat-sheet .chat-composer { flex-shrink:0; max-height:60%; overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y; }
+.web-screen .chat-companion-heading>div { min-width:0; }
+.web-screen .chat-companion-heading small,.web-screen .is-chat-sheet .sheet-description { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; }
+.web-screen .chat-memory-off { flex-wrap:wrap; }
+.web-screen .chat-memory-off>span { min-width:0; flex:1 1 160px; }
+.web-screen .chat-compose-actions>label,.web-screen .chat-compose-actions>button { min-width:78px; min-height:44px; }
+
+@media(max-width:699px) {
+  /* JS-measured fallback also works in WebViews without dynamic viewport units. */
+  .web-screen .bottom-sheet.is-chat-sheet { height:calc(var(--native-height,100vh) - env(safe-area-inset-top,0px) - 12px); }
+  .web-screen .bottom-sheet.is-chat-sheet>.sheet-content { padding-bottom:calc(12px + env(safe-area-inset-bottom,0px)); }
+  .web-screen .is-chat-sheet .chat-composer { max-height:60%; }
+  .web-screen .companion-invite { margin:4px 0; }
+}
+@media(max-width:359px) {
+  .web-screen .app-header { padding-inline:14px; }
+  .web-screen .brand-trigger { min-width:0; gap:6px; }
+  .web-screen .brand-trigger .reference-sprout { width:24px; }
+  .web-screen .header-actions { gap:6px; }
+  .web-screen .jixiang-app { padding-inline:12px; }
+  .web-screen .route-card { padding-inline:12px; }
+  .web-screen .task-row { gap:6px; padding-right:6px; }
+  .web-screen .stampbook-mobile-tabs button { padding-inline:4px; font-size:13px; }
+  .web-screen .stamp-collection-card { grid-template-columns:80px minmax(0,1fr); gap:12px; padding-inline:14px; }
+  .web-screen .stamp-collection-art,.web-screen .stamp-collection-art img { width:80px; height:80px; }
+  .web-screen .stamp-collection-detail-intro { gap:12px; }
+  .web-screen .stamp-collection-detail-intro>img { width:80px; height:80px; flex-basis:80px; }
+  .web-screen .activity-ring-center strong { font-size:27px; }
+}
+@media(min-width:700px) {
+  .web-screen .task-row { grid-template-columns:20px 30px minmax(0,1fr) 44px!important; gap:12px; }
+  .web-screen .task-more-button { width:44px; height:44px; }
+  .web-screen .bottom-sheet { bottom:calc(var(--native-keyboard-inset,0px) + 24px)!important; max-height:calc(var(--native-height,100dvh) - 48px)!important; }
+  .web-screen .bottom-sheet.is-chat-sheet { height:min(760px,calc(var(--native-height,100dvh) - 48px)); }
+  .web-screen .works-gallery { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(min-width:1000px) {
+  .web-screen .today-panel:not(:has(.focus-card)) { grid-template-columns:minmax(0,1fr); }
+  .web-screen .today-workspace { display:grid; grid-template-columns:minmax(0,1fr) minmax(250px,300px); align-items:start; gap:24px; }
+  .web-screen .today-workspace>.route-card { grid-column:1; order:0; }
+  .web-screen .today-sidebar { display:grid; min-width:0; gap:16px; align-self:start; }
+  .web-screen .today-sidebar>.next-step-card { flex-direction:column; align-items:stretch; gap:16px; }
+  .web-screen .today-sidebar>.companion-invite { margin:0; }
+  .web-screen .today-sidebar>.task-close-actions { flex-direction:column; align-items:stretch; gap:4px; }
+  .web-screen .today-sidebar>.today-footnote { flex-wrap:wrap; }
+}
+@media(min-width:1280px) { .web-screen .works-gallery { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-height:520px) {
+  .web-screen .product-sheet .sheet-header { padding-bottom:8px; }
+  .web-screen .chat-companion-heading { gap:8px; padding-block:4px; }
+  .web-screen .chat-companion-heading img { width:36px; height:36px; }
+}
+@media(hover:hover) { .web-screen .product-sheet-close:hover { background:#eaf0e2; } }
+@media(prefers-reduced-motion:reduce) { .web-screen .task-more-button { transition:none; } }

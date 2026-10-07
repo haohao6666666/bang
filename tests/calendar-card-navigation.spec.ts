@@ -17,18 +17,18 @@ test('task text, blank card space and keyboard open the date of that card only',
  const yesterday=page.locator('.stampbook-mobile-day-card[data-date="2026-10-02"]');
  const detail=page.getByTestId('calendar-day-detail');
  await today.getByText('今天画小狗',{exact:true}).click();
- await expect(detail.locator('.day-heading')).toContainText('10.03');
+ await expect(detail.locator('.day-heading')).toContainText('10/3');
  await expect(detail.locator('.day-overview-tasks')).toContainText('今天画小狗');
  await expect(detail.locator('.day-overview-tasks')).not.toContainText('昨天读一页书');
  await page.getByRole('button',{name:'‹ 返回日历',exact:true}).click();
  await yesterday.scrollIntoViewIfNeeded();
  await yesterday.click({position:{x:25,y:90}});
- await expect(detail.locator('.day-heading')).toContainText('10.02');
+ await expect(detail.locator('.day-heading')).toContainText('10/2');
  await expect(detail.locator('.day-overview-tasks')).toContainText('昨天读一页书');
  await expect(detail.locator('.day-overview-tasks')).not.toContainText('今天画小狗');
  await page.getByRole('button',{name:'‹ 返回日历',exact:true}).click();
  await today.focus();await page.keyboard.press('Enter');
- await expect(detail.locator('.day-heading')).toContainText('10.03');
+ await expect(detail.locator('.day-heading')).toContainText('10/3');
 });
 test('dragging a day card switches dates without accidentally opening details',async({page})=>{
  await recordedCalendar(page);
@@ -41,5 +41,5 @@ test('dragging a day card switches dates without accidentally opening details',a
  await page.clock.runFor(1000);
  const yesterday=page.locator('.stampbook-mobile-day-card[data-date="2026-10-02"]');
  await yesterday.scrollIntoViewIfNeeded();await yesterday.getByText('昨天读一页书',{exact:true}).click();
- await expect(page.getByTestId('calendar-day-detail').locator('.day-heading')).toContainText('10.02');
+ await expect(page.getByTestId('calendar-day-detail').locator('.day-heading')).toContainText('10/2');
 });

@@ -252,10 +252,6 @@ button {
   inset: 0;
 }
 
-.mobile-app-viewport[data-platform="android"][data-keyboard-visible="false"] {
-  bottom: var(--device-safe-area-bottom, 48px);
-}
-
 .flow-stack {
   --flow-header-height: 0px;
   --flow-header-content-height: 0px;
@@ -312,10 +308,6 @@ button {
 }
 
 .mobile-page[data-keyboard-visible="true"] {
-  --mobile-safe-area-height: 0px;
-}
-
-.mobile-app-viewport[data-platform="android"] .mobile-page {
   --mobile-safe-area-height: 0px;
 }
 
@@ -513,13 +505,6 @@ button {
   pointer-events: none;
 }
 
-.device-screen[data-device="pixel-10"] .status-bar {
-  align-items: start;
-  height: auto;
-  padding: 32px 32px 0;
-  font-family: "Roboto", Arial, sans-serif;
-}
-
 .status-time {
   justify-self: start;
   min-width: 58px;
@@ -545,16 +530,6 @@ button {
   height: 13px;
 }
 
-.status-indicator-svg[data-platform="android"] {
-  width: 50px;
-  height: 14px;
-}
-
-.device-screen[data-device="pixel-10"] .status-time {
-  font-weight: 500;
-  transform: translateY(2px);
-}
-
 .home-indicator-svg {
   position: absolute;
   z-index: 70;
@@ -565,18 +540,6 @@ button {
   width: 100%;
   height: var(--device-safe-area-bottom, 34px);
   pointer-events: none;
-}
-
-.android-navigation-bar {
-  position: absolute;
-  z-index: 70;
-  bottom: -1px;
-  left: -1px;
-  display: block;
-  width: 428px;
-  height: var(--device-safe-area-bottom, 48px);
-  pointer-events: none;
-  -webkit-user-drag: none;
 }
 
 h1,
@@ -711,12 +674,6 @@ p {
   will-change: transform;
 }
 
-.keyboard-dock[data-platform="android"] {
-  border-radius: 0;
-  background: #f3f2f6;
-  box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.08);
-}
-
 .keyboard-dock[data-visible="true"] {
   pointer-events: auto;
 }
@@ -734,7 +691,4 @@ p {
   pointer-events: none;
 }
 
-.keyboard-dock[data-platform="android"] .keyboard-asset {
-  border-radius: 0;
-  object-fit: fill;
-}
+

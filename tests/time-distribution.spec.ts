@@ -80,8 +80,8 @@ test("donut and legend fit iPhone and Pixel and an empty month does not invent s
   await openRecordedApp(page);
   await page.getByLabel("回看范围").selectOption("month");
   const ring = page.getByTestId("time-distribution");
-  for (const device of ["iphone", "pixel-10"]) {
-    if (device === "pixel-10") { await page.getByTestId("device-picker").click(); await page.getByTestId("device-option-pixel-10").click(); }
+  for (const width of [390,427]) {
+    await page.setViewportSize({width,height:900});
     await ring.scrollIntoViewIfNeeded();
     await expect(ring.locator(".activity-ring-segment")).toHaveCount(4);
     const fit = await ring.evaluate(el => ({ fits: el.scrollWidth <= el.clientWidth, svg: el.querySelector("svg")!.getBoundingClientRect().width }));

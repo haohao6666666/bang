@@ -7,12 +7,22 @@ export function useNativeViewport() {
     const root = document.documentElement;
     let frame = 0;
     let pageHeight = viewport?.height ?? window.innerHeight;
+    let pageWidth = viewport?.width ?? window.innerWidth;
     const update = () => {
       frame = 0;
       // Keep browser pinch zoom accessible; it is not a keyboard resize.
       if (viewport && Math.abs(viewport.scale - 1) > 0.05) return;
       const height = viewport?.height ?? window.innerHeight;
-      const keyboardOpen = pageHeight - height > 120;
+      const width = viewport?.width ?? window.innerWidth;
+      // Rotating a phone is a new page size, not a keyboard opening.
+      if(Math.abs(width-pageWidth)>60)pageHeight=height;
+      pageWidth=width;
+      const input = document.activeElement;
+      const editing = input instanceof HTMLElement && (input.matches('input,textarea') || input.isContentEditable);
+      // A smaller desktop window is not a keyboard. Keep the old page height
+      // only while editing or during the native keyboard's closing animation.
+      const nativeInput = window.matchMedia('(max-width:699px), (any-pointer:coarse)').matches;
+      const keyboardOpen = nativeInput && pageHeight - height > 120 && (editing || root.dataset.nativeKeyboard === 'open');
       if (!keyboardOpen) pageHeight = height;
       const offset = keyboardOpen ? Math.max(0, viewport?.offsetTop ?? 0) : 0;
       root.style.setProperty('--native-height', `${height}px`);

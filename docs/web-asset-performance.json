@@ -1,0 +1,138 @@
+{
+  "sourceArtworkPreserved": true,
+  "originalBytes": 38272746,
+  "webBytes": 1037608,
+  "reductionPercent": 97.3,
+  "items": [
+    {
+      "file": "companions-web/books-tea.webp",
+      "originalBytes": 1627986,
+      "webBytes": 71186
+    },
+    {
+      "file": "companions-web/landscape.webp",
+      "originalBytes": 1486676,
+      "webBytes": 44020
+    },
+    {
+      "file": "companions-web/puppy-cheering.webp",
+      "originalBytes": 1169604,
+      "webBytes": 84610
+    },
+    {
+      "file": "companions-web/puppy-journaling.webp",
+      "originalBytes": 1075656,
+      "webBytes": 75078
+    },
+    {
+      "file": "companions-web/puppy-reading.webp",
+      "originalBytes": 1212784,
+      "webBytes": 84086
+    },
+    {
+      "file": "companions-web/puppy-resting.webp",
+      "originalBytes": 1172412,
+      "webBytes": 79030
+    },
+    {
+      "file": "companions-web/puppy-thinking.webp",
+      "originalBytes": 983844,
+      "webBytes": 72188
+    },
+    {
+      "file": "companions-web/puppy-welcome.webp",
+      "originalBytes": 1335992,
+      "webBytes": 91886
+    },
+    {
+      "file": "companions-web/sprout.webp",
+      "originalBytes": 585304,
+      "webBytes": 43548
+    },
+    {
+      "file": "stamps-web/breakthrough-milestone.webp",
+      "originalBytes": 1732918,
+      "webBytes": 25316
+    },
+    {
+      "file": "stamps-web/exploration-interest.webp",
+      "originalBytes": 1691816,
+      "webBytes": 23676
+    },
+    {
+      "file": "stamps-web/exploration-journey.webp",
+      "originalBytes": 1765778,
+      "webBytes": 25238
+    },
+    {
+      "file": "stamps-web/exploration-math.webp",
+      "originalBytes": 1636680,
+      "webBytes": 23464
+    },
+    {
+      "file": "stamps-web/exploration-research.webp",
+      "originalBytes": 1909060,
+      "webBytes": 26344
+    },
+    {
+      "file": "stamps-web/growth-reflection.webp",
+      "originalBytes": 1789224,
+      "webBytes": 24768
+    },
+    {
+      "file": "stamps-web/persistence-return.webp",
+      "originalBytes": 1433768,
+      "webBytes": 20608
+    },
+    {
+      "file": "stamps-web/time-atom.webp",
+      "originalBytes": 1757748,
+      "webBytes": 26544
+    },
+    {
+      "file": "stamps-web/time-book.webp",
+      "originalBytes": 1669788,
+      "webBytes": 23462
+    },
+    {
+      "file": "stamps-web/time-coffee.webp",
+      "originalBytes": 1591640,
+      "webBytes": 23380
+    },
+    {
+      "file": "stamps-web/time-english.webp",
+      "originalBytes": 1491462,
+      "webBytes": 21676
+    },
+    {
+      "file": "stamps-web/time-flask.webp",
+      "originalBytes": 1414156,
+      "webBytes": 19596
+    },
+    {
+      "file": "stamps-web/time-leaf.webp",
+      "originalBytes": 1378764,
+      "webBytes": 19314
+    },
+    {
+      "file": "stamps-web/time-mountain.webp",
+      "originalBytes": 1704718,
+      "webBytes": 24012
+    },
+    {
+      "file": "stamps-web/time-pen.webp",
+      "originalBytes": 1510126,
+      "webBytes": 21264
+    },
+    {
+      "file": "stamps-web/time-source.webp",
+      "originalBytes": 1647522,
+      "webBytes": 23056
+    },
+    {
+      "file": "stamps-web/time-spark.webp",
+      "originalBytes": 1497320,
+      "webBytes": 20258
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { type PropsWithChildren, useEffect, useState } from "react";
+import { type ComponentProps, type PropsWithChildren, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useDrag } from "@use-gesture/react";
 import { AnimatePresence, motion } from "motion/react";
@@ -12,6 +12,7 @@ type BottomSheetProps = PropsWithChildren<{
   title: string;
   description?: string;
   snap?: number;
+  onOpenAutoFocus?: ComponentProps<typeof Dialog.Content>['onOpenAutoFocus'];
 }>;
 
 export function BottomSheet({
@@ -20,6 +21,7 @@ export function BottomSheet({
   title,
   description,
   snap = 0.72,
+  onOpenAutoFocus,
   children,
 }: BottomSheetProps) {
   const { device } = useMobileDevice();
@@ -67,10 +69,7 @@ export function BottomSheet({
 
   const sheetHeight = Math.round(device.geometry.screen.height * snap);
   const effectiveHeight = Math.max(260, sheetHeight - Math.min(keyboardHeight, 180));
-  const sheetBottom =
-    device.platform === "android"
-      ? Math.max(device.geometry.safeArea.bottom, keyboardHeight)
-      : keyboardHeight;
+  const sheetBottom = keyboardHeight;
   const portalContainer = screenRef.current ?? undefined;
 
   return (
@@ -91,7 +90,7 @@ export function BottomSheet({
                   transition={{ duration: 0.16 }}
                 />
               </Dialog.Overlay>
-              <Dialog.Content asChild forceMount>
+              <Dialog.Content asChild forceMount onOpenAutoFocus={onOpenAutoFocus}>
                 <motion.div
                   className="bottom-sheet"
                   data-testid="bottom-sheet"

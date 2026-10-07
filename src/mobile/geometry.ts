@@ -42,27 +42,4 @@ export const iphoneGeometry = {
   },
 } as const satisfies MobileDeviceGeometry;
 
-export const pixelGeometry = {
-  // Pixel10.png is a 2x asset. Its 854 x 1904 screen opening renders at
-  // exactly 427 x 952 CSS pixels inside the 566 x 1022 asset canvas.
-  device: {
-    width: 566,
-    height: 1022,
-  },
-  screen: {
-    x: 70,
-    y: 35,
-    width: 427,
-    height: 952,
-    radius: 58,
-  },
-  safeArea: {
-    top: 64,
-    bottom: 48,
-  },
-  keyboard: {
-    height: 316,
-  },
-} as const satisfies MobileDeviceGeometry;
-
 export type IPhoneGeometry = typeof iphoneGeometry;

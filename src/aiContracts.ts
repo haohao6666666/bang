@@ -37,10 +37,10 @@ export const aiClient = {
 };
 
 export const AI_WORKSPACE_KEY = "jixiang-ai-workspace-v1";
-export function readAiWorkspace(): AiWorkspace {
+export function readAiWorkspace(storageKey=AI_WORKSPACE_KEY): AiWorkspace {
   const empty: AiWorkspace = { version: 1, bookmarks: [], stamps: [], includeDiary: false, useBookmarks: false };
   try {
-    const value = JSON.parse(localStorage.getItem(AI_WORKSPACE_KEY) || "null");
+    const value = JSON.parse(localStorage.getItem(storageKey) || "null");
     if (value?.version !== 1) return empty;
     const seen = new Set<string>();
     const bookmarks = (Array.isArray(value.bookmarks) ? value.bookmarks : []).slice(0, 200).flatMap((item: unknown) => {

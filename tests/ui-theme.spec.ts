@@ -53,11 +53,8 @@ test("collection artwork and full-width explanations fit both phone presets", as
   await openApp(page);
   await page.getByRole("navigation", { name: "主要导航" }).getByRole("button", { name: "足迹", exact: true }).click();
   await page.getByRole("tab", { name: "我的印章册", exact: true }).click();
-  for (const device of ["iphone", "pixel-10"]) {
-    if (device === "pixel-10") {
-      await page.getByTestId("device-picker").click();
-      await page.getByTestId("device-option-pixel-10").click();
-    }
+  for (const width of [390, 427]) {
+    await page.setViewportSize({width,height:900});
     const card = page.getByTestId("stamp-card-time:book");
     await card.scrollIntoViewIfNeeded();
     await expect(card.getByRole("img", { name: "书页印印章", exact: true })).toBeVisible();

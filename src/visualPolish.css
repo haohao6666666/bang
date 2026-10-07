@@ -1,0 +1,87 @@
+/* Independent warm artwork; every control keeps its existing action. */
+.web-screen .brand-trigger { gap:0; }
+.web-screen .brand-wordmark { display:block; width:112px; height:48px; object-fit:contain; object-position:left center; }
+.web-screen .brand-subtitle { margin-top:0; max-width:210px; font-size:10px; line-height:1.5; color:#345641; white-space:normal; }
+.welcome-brand .brand-wordmark { display:block; width:154px; height:76px; object-fit:contain; }
+.welcome-transition .welcome-brand { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.welcome-transition .welcome-brand .brand-wordmark { grid-row:auto; }
+.welcome-transition .welcome-brand small { color:#345641; }
+.web-screen .welcome-transition { animation-duration:1.5s; }
+.web-screen .bottom-nav { gap:7px; padding-top:7px; border-top:1px solid #e6e1d5; background:#fffdf5; }
+.web-screen .bottom-nav button { height:57px; gap:2px; border-radius:16px; }
+.web-screen .bottom-nav .navigation-art { display:block; width:34px; height:32px; object-fit:contain; transition:transform .2s ease,opacity .2s ease; opacity:.78; }
+.web-screen .bottom-nav button.selected { background:#ecf0e4; color:#456348; box-shadow:inset 0 0 0 1px #dce4d1; }
+.web-screen .bottom-nav button.selected .navigation-art { transform:translateY(-1px); opacity:1; }
+.web-screen .bottom-nav button.selected::after { display:none; }
+.web-screen .bottom-nav button:active .navigation-art { transform:scale(.94); }
+
+.web-screen .stampbook-hero { min-height:162px; }
+.web-screen .stampbook-hero>img { right:12px; bottom:10px; width:142px; height:118px; object-fit:contain; }
+.web-screen .stampbook-hero>div { max-width:60%; }
+.web-screen .stampbook-hero.is-compact>img { right:10px; }
+.web-screen .stampbook-mobile-day-date { align-items:baseline; gap:7px; }
+.web-screen .stampbook-mobile-day-date em { white-space:nowrap; }
+.web-screen .day-heading>div { flex-wrap:wrap; }
+
+/* Small illustrated loops attach to the existing page without shifting its sections. */
+.web-screen .day-page::before { display:none; }
+.notebook-binding { position:absolute; z-index:2; left:-18px; top:0; bottom:0; width:40px; pointer-events:none; }
+.notebook-binding-loop { position:absolute; display:block; left:0; width:40px; height:26px; }
+.notebook-binding-loop img { display:block; width:40px; height:26px; object-fit:contain; }
+.web-screen .day-page { border-left-color:#cfbea1; box-shadow:inset 8px 0 13px -12px #7c6d48,3px 4px 0 #e7dbbe66,0 8px 22px #70633b08; }
+
+.focus-duration-picker { margin:0; padding:0; border:0; min-width:0; display:grid; gap:10px; }
+.focus-duration-picker legend { padding:0 0 9px; font-size:12px; font-weight:600; color:#647455; }
+.duration-presets { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; max-width:360px; }
+.duration-presets button { min-width:0; min-height:48px; padding:5px 2px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; border:1px solid #dedfcf; border-radius:12px; background:#fffdf6; color:#6b715c; font-size:17px; font-weight:600; transition:background .16s ease,border-color .16s ease,transform .16s ease; }
+.duration-presets small { font-size:9px; font-weight:400; color:inherit; }
+.duration-presets button[aria-pressed=true] { border-color:#83966e; background:#eaf0df; color:#476042; box-shadow:inset 0 0 0 1px #a5b79755; }
+.duration-presets button:active { transform:scale(.96); }
+.focus-duration-picker .duration-field { justify-self:start; width:auto; max-width:100%; min-height:42px; gap:8px; padding:0 10px; border-radius:10px; background:#fbfbf3; }
+.focus-duration-picker .duration-field span { flex:none; font-size:11px; }
+.focus-duration-picker .duration-field input { width:54px!important; min-width:0; min-height:36px; padding:0!important; font-variant-numeric:tabular-nums; text-align:center; }
+.focus-duration-picker .duration-field em { font-size:11px; }
+
+/* The copy is inert. Pointer events always reach the original list and drop target. */
+.task-drag-layer { position:fixed!important; z-index:1200; inset:0!important; width:100vw!important; height:100vh!important; pointer-events:none!important; overflow:visible!important; background:none!important; }
+.task-drag-layer .task-drag-preview { position:absolute; box-sizing:border-box; margin:0!important; opacity:1!important; z-index:1; pointer-events:none!important; transform-origin:50% 50%; box-shadow:0 14px 34px #66553a26,0 3px 9px #66553a16!important; border-color:#aebd9a!important; will-change:transform; }
+.web-screen .task-row.is-dragging { opacity:.28; transform:none; box-shadow:none; border-style:dashed; }
+.web-screen .task-row.is-drag-over { border-color:#8da47a; background:#f2f5e9; box-shadow:0 -3px 0 -1px #92a67c; }
+.web-stage .web-screen .task-drag-handle { cursor:grab!important; touch-action:none; }
+.web-stage .web-screen .task-row.is-dragging .task-drag-handle { cursor:grabbing!important; }
+
+/* Frost is static; the short highlight travels once when a sheet appears. */
+.web-screen .sheet-overlay { background:rgba(48,57,40,.22); }
+.web-screen .product-sheet { border:1px solid #e2e4d8; border-radius:28px 28px 0 0; background:#fffdf7; color:#43513d; isolation:isolate; box-shadow:0 -8px 36px #4b584522,inset 0 1px 0 #ffffff; }
+.web-screen .product-sheet::before { content:""; position:absolute; z-index:-1; inset:0; border-radius:inherit; pointer-events:none; background:linear-gradient(115deg,#ffffff70,transparent 32%,#e8efde24 74%,#ffffff50); animation:glass-light .42s ease-out both; }
+.web-screen .product-sheet .sheet-header { border-bottom:1px solid #d9dfce60; margin-inline:20px; padding-left:0; padding-bottom:13px; }
+.web-screen .product-sheet .sheet-title { color:#41583f; font-size:17px; }
+.web-screen .product-sheet .sheet-description { color:#69765f; }
+.web-screen .product-sheet-close,.web-screen .companion-close { background:#fcfdf5d9; border:1px solid #d5ddc9; border-radius:50%; box-shadow:0 2px 8px #5666450a; }
+.web-screen .product-sheet .sheet-handle { background:#a9b69a; }
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  .web-screen .sheet-overlay { -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+  .web-screen .product-sheet { background:rgba(255,253,245,.88); -webkit-backdrop-filter:blur(14px) saturate(112%); backdrop-filter:blur(14px) saturate(112%); border-color:#ffffffe0; }
+}
+@keyframes glass-light { from{opacity:.15;transform:translateY(5px)} to{opacity:.65;transform:translateY(0)} }
+@media(min-width:700px) {
+  .web-screen .brand-wordmark { width:144px; height:62px; }
+  .web-screen .brand-subtitle { font-size:12px; }
+  .web-screen .stampbook-hero>img { width:250px; height:166px; right:20px; bottom:14px; }
+  .web-screen .product-sheet { border-radius:30px; box-shadow:0 20px 68px #35443132,inset 0 1px 0 #ffffff; }
+  .web-screen .bottom-nav button { height:56px; }
+  .web-screen .bottom-nav .navigation-art { width:36px; height:34px; }
+  .duration-presets button { min-height:54px; }
+  .web-screen .day-heading h2 { font-size:38px; }
+}
+@media(max-width:359px) {
+  .web-screen .brand-wordmark { width:100px; height:44px; }
+  .web-screen .brand-subtitle { font-size:9px; }
+  .web-screen .stampbook-hero>img { width:126px; right:10px; }
+  .web-screen .stampbook-hero h1 { font-size:25px; }
+  .notebook-binding { left:-10px; width:34px; }
+  .notebook-binding-loop,.notebook-binding-loop img { width:34px; }
+}
+@media(prefers-reduced-motion:reduce) { .web-screen .product-sheet::before { animation:none; } .task-drag-preview { will-change:auto; } }
+.reduce-motion .product-sheet::before { animation:none; }
+.web-screen .product-sheet.is-reduced-motion::before { animation:none; }

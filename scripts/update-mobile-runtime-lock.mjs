@@ -29,10 +29,7 @@ const protectedFiles = [
   "src/mobile/index.ts",
   "public/assets/iphone/Bezel.png",
   "public/assets/iphone/Keyboard.png",
-  "public/assets/android/Pixel10.png",
-  "public/assets/android/Keyboard.png",
-  "public/assets/android/navigation-bar.svg",
-  "public/assets/status/status-icons.svg",
+
   "public/assets/status/ios-status-icons.svg",
   "worker/index.js",
 ];
@@ -46,3 +43,4 @@ for (const relativePath of protectedFiles) {
 
 writeFileSync(lockPath, `${JSON.stringify(hashes, null, 2)}\n`);
 console.log(`Updated mobile-runtime.lock.json (${protectedFiles.length} protected files).`);
+

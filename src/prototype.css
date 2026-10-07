@@ -449,3 +449,27 @@
 /* Every day card opens its own date; carousel still owns swipe suppression. */
 .stampbook-mobile-day-card{cursor:pointer;}
 .stampbook-mobile-day-card:focus-visible{outline:2px solid #80956c;outline-offset:3px;}
+
+/* Horizontal rails keep dates inside the rail, but vertical wheel/trackpad
+   gestures must reach the page even while the pointer is over a tall card. */
+.app-screen .mobile-carousel {
+  overscroll-behavior-x:contain;
+  overscroll-behavior-y:auto;
+}
+
+/* Up to six distinct pictures are pressed into the lower-right paper corner.
+   A second row has its own paper space instead of overflowing a narrow card. */
+.stampbook-mobile-day-card.has-many-stamps{padding-bottom:178px;}
+.has-many-stamps .stampbook-mobile-day-stamps{display:grid;grid-template-columns:repeat(3,62px);gap:4px 0;}
+.has-many-stamps .stampbook-mobile-day-stamps .calendar-stamp.compact{margin-left:0;}
+.day-stamp-item{display:flex;flex-direction:column;align-items:center;gap:7px;width:112px;max-width:100%;margin:0;text-align:center;}
+.day-stamp-item figcaption{display:grid;gap:3px;width:100%;font-size:12px;line-height:1.6;color:#65715d;overflow-wrap:anywhere;}
+.day-stamp-item small{color:#8d8a78;font-size:12px;}
+.stamp-tooltip{pointer-events:none;background:rgba(255,252,245,.74);-webkit-backdrop-filter:blur(10px) saturate(112%);backdrop-filter:blur(10px) saturate(112%);border-color:rgba(255,255,255,.8);box-shadow:0 8px 24px #3b42291c,inset 0 1px 0 #ffffffa6;}
+.stamp-tooltip>span{color:#70815e;}
+.stamp-tooltip small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;color:#6e7961;}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.stamp-tooltip{background:#fffcf5;border-color:#d5dbc5;}}
+@media(min-width:700px){
+  .web-screen .calendar-day-carousel-content .stampbook-mobile-day-card.has-many-stamps{padding-bottom:224px;}
+  .web-screen .has-many-stamps .stampbook-mobile-day-stamps{grid-template-columns:repeat(3,82px);}
+}

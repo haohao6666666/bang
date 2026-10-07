@@ -2,14 +2,14 @@ import { createContext, type PropsWithChildren, useContext, useMemo, useState } 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { mobileAssets } from "./assets";
-import { iphoneGeometry, pixelGeometry, type MobileDeviceGeometry } from "./geometry";
+import { iphoneGeometry, type MobileDeviceGeometry } from "./geometry";
 
-export type MobileDeviceId = "iphone" | "pixel-10";
+export type MobileDeviceId = "iphone";
 
 type MobileDevicePreset = {
   id: MobileDeviceId;
   label: string;
-  platform: "ios" | "android";
+  platform: "ios";
   bezel: string;
   bezelLayer: "above-screen" | "below-screen";
   geometry: MobileDeviceGeometry;
@@ -28,18 +28,7 @@ export const mobileDevices: Record<MobileDeviceId, MobileDevicePreset> = {
     bezelLayer: "above-screen",
     geometry: iphoneGeometry,
   },
-  "pixel-10": {
-    id: "pixel-10",
-    label: "Pixel 10",
-    platform: "android",
-    bezel: mobileAssets.pixel10Bezel,
-    bezelLayer: "below-screen",
-    geometry: pixelGeometry,
-    camera: {
-      size: 32,
-      top: 23,
-    },
-  },
+
 };
 
 type MobileDeviceContextValue = {

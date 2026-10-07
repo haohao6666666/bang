@@ -2,12 +2,17 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useScreenPortal } from "./mobile";
 import type { StampGroup } from "./stampBook";
-import { describeTimeStampOccurrence, resolveTimeStampDefinition, stampAsset, stampCategoryLabel } from "./stampDefinitions";
+import { describeTimeStampOccurrence, resolveTimeStampDefinition, stampAsset, stampCategoryLabel, type StampDefinition } from "./stampDefinitions";
 
-export function CalendarStamp({ group, index = 0, compact = false, onOpen }: {
-  group: StampGroup; index?: number; compact?: boolean; onOpen: (group: StampGroup) => void;
-}) {
-  const definition = resolveTimeStampDefinition(group);
+type CalendarStampProps = {index?:number;compact?:boolean} & (
+  | {group:StampGroup;definition?:never;dateKey?:never;reason?:never;onOpen:(group:StampGroup)=>void}
+  | {group?:undefined;definition:StampDefinition;dateKey:string;reason?:string;onOpen:()=>void}
+);
+export function CalendarStamp(props:CalendarStampProps) {
+  const {group,index=0,compact=false}=props;
+  const definition=group?resolveTimeStampDefinition(group):props.definition!;
+  const dateKey=group?.dateKey??props.dateKey;
+  const occurrence=group?describeTimeStampOccurrence(group):props.reason??definition.triggerDescription;
   const { screenRef } = useScreenPortal();
   const tooltipId = useId();
   const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
@@ -34,18 +39,18 @@ export function CalendarStamp({ group, index = 0, compact = false, onOpen }: {
   }, [position]);
   useEffect(() => () => clearTimeout(dismissTimer.current), []);
   return <>
-    <button type="button" data-testid="calendar-stamp" className={`calendar-stamp ${compact ? "compact" : ""}`}
-      aria-label={`${definition.name}，${group.subject}，${group.dateKey}，第 ${index + 1} 枚`}
+    <button type="button" data-testid="calendar-stamp" data-stamp-key={definition.key} data-stamp-category={definition.category} data-stamp-date={dateKey} className={`calendar-stamp ${compact ? "compact" : ""}`}
+      aria-label={`${definition.name}，${group?.subject??stampCategoryLabel(definition.category)}，${dateKey}，第 ${index + 1} 枚`}
       aria-describedby={position ? tooltipId : undefined}
       onPointerEnter={(event) => { if (event.pointerType === "mouse") show(event.currentTarget); }}
       onPointerLeave={delayedClose} onFocus={(event) => { if (event.currentTarget.matches(":focus-visible")) show(event.currentTarget); }}
-      onBlur={close} onClick={() => { close(); onOpen(group); }}>
+      onBlur={close} onClick={() => { close(); if(props.group)props.onOpen(props.group);else props.onOpen(); }}>
       <img src={stampAsset(definition)} alt="" loading="lazy" decoding="async" draggable={false} />
     </button>
     {position && screenRef.current && createPortal(<div id={tooltipId} role="tooltip" className="stamp-tooltip" style={position}
       onPointerEnter={() => clearTimeout(dismissTimer.current)} onPointerLeave={close}>
-      <span>{stampCategoryLabel(definition.category)} · {group.subject}</span><strong>{definition.name}</strong><p>{definition.meaning}</p>
-      <small>{describeTimeStampOccurrence(group)}</small>
+      <span>{stampCategoryLabel(definition.category)} · {group?.subject??dateKey}</span><strong>{definition.name}</strong><p>{definition.meaning}</p>
+      <small>{occurrence}</small>
     </div>, screenRef.current)}
   </>;
 }

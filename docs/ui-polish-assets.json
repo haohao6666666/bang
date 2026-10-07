@@ -1,0 +1,140 @@
+[
+  {
+    "name": "wordmark",
+    "bytes": 12632,
+    "width": 282,
+    "height": 152
+  },
+  {
+    "name": "nav-today",
+    "bytes": 3568,
+    "width": 140,
+    "height": 140
+  },
+  {
+    "name": "nav-footprints",
+    "bytes": 3744,
+    "width": 140,
+    "height": 111
+  },
+  {
+    "name": "nav-my",
+    "bytes": 5100,
+    "width": 139,
+    "height": 140
+  },
+  {
+    "name": "binder-ring-v3",
+    "bytes": 2898,
+    "width": 73,
+    "height": 46
+  },
+  {
+    "name": "books-tea-small.webp",
+    "bytes": 21520
+  },
+  {
+    "name": "books-tea-tiny.webp",
+    "bytes": 5924
+  },
+  {
+    "name": "books-tea-large.webp",
+    "bytes": 39650
+  },
+  {
+    "name": "landscape-small.webp",
+    "bytes": 13214
+  },
+  {
+    "name": "landscape-tiny.webp",
+    "bytes": 3706
+  },
+  {
+    "name": "landscape-large.webp",
+    "bytes": 24936
+  },
+  {
+    "name": "puppy-cheering-small.webp",
+    "bytes": 23014
+  },
+  {
+    "name": "puppy-cheering-tiny.webp",
+    "bytes": 6500
+  },
+  {
+    "name": "puppy-cheering-large.webp",
+    "bytes": 46702
+  },
+  {
+    "name": "puppy-journaling-small.webp",
+    "bytes": 22426
+  },
+  {
+    "name": "puppy-journaling-tiny.webp",
+    "bytes": 6554
+  },
+  {
+    "name": "puppy-journaling-large.webp",
+    "bytes": 42716
+  },
+  {
+    "name": "puppy-reading-small.webp",
+    "bytes": 23654
+  },
+  {
+    "name": "puppy-reading-tiny.webp",
+    "bytes": 6998
+  },
+  {
+    "name": "puppy-reading-large.webp",
+    "bytes": 46220
+  },
+  {
+    "name": "puppy-resting-small.webp",
+    "bytes": 21050
+  },
+  {
+    "name": "puppy-resting-tiny.webp",
+    "bytes": 6202
+  },
+  {
+    "name": "puppy-resting-large.webp",
+    "bytes": 42730
+  },
+  {
+    "name": "puppy-thinking-small.webp",
+    "bytes": 20578
+  },
+  {
+    "name": "puppy-thinking-tiny.webp",
+    "bytes": 6226
+  },
+  {
+    "name": "puppy-thinking-large.webp",
+    "bytes": 40356
+  },
+  {
+    "name": "puppy-welcome-small.webp",
+    "bytes": 24892
+  },
+  {
+    "name": "puppy-welcome-tiny.webp",
+    "bytes": 7076
+  },
+  {
+    "name": "puppy-welcome-large.webp",
+    "bytes": 49674
+  },
+  {
+    "name": "sprout-small.webp",
+    "bytes": 11860
+  },
+  {
+    "name": "sprout-tiny.webp",
+    "bytes": 3912
+  },
+  {
+    "name": "sprout-large.webp",
+    "bytes": 23038
+  }
+]

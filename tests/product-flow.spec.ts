@@ -60,11 +60,11 @@ async function readState(page: Page) {
 
 test.use({ timezoneId: "Asia/Shanghai" });
 
-test("calendar keeps recorded time but paints a stamp type only on its first day",async({page})=>{
+test("calendar paints repeated time-stamp types on each qualifying day without duplicate pictures",async({page})=>{
  await page.setViewportSize({width:390,height:844});await seedApp(page);await openCalendar(page);
- const today=dateCard(page,TODAY);await expect(today).toContainText("10.03");await expect(today).toContainText("周六");await expect(today).toContainText("34 分钟");
- await expect(today.getByTestId("calendar-stamp")).toHaveCount(0);
- const first=dateCard(page,TWO_DAYS_AGO);await first.scrollIntoViewIfNeeded();await expect(first.getByTestId("calendar-stamp")).toHaveCount(1);
+ const today=dateCard(page,TODAY);await expect(today).toContainText("10/3");await expect(today).toContainText("星期六");await expect(today).toContainText("34 分钟");
+ await expect(today.locator('[data-testid="calendar-stamp"][data-stamp-category="time"]')).toHaveCount(1);
+ const first=dateCard(page,TWO_DAYS_AGO);await first.scrollIntoViewIfNeeded();await expect(first.locator('[data-testid="calendar-stamp"][data-stamp-category="time"]')).toHaveCount(1);
  await first.getByRole("button",{name:`查看 ${TWO_DAYS_AGO} 的记录`,exact:true}).click();
  await expect(page.getByTestId("calendar-day-detail")).toBeVisible();await expect(page.getByTestId("bottom-sheet")).toHaveCount(0);
  const images=await page.locator('.day-earned-stamps img').evaluateAll(imgs=>imgs.map(i=>(i as HTMLImageElement).src));expect(new Set(images).size).toBe(images.length);
@@ -230,7 +230,7 @@ test("saving a historical diary returns to that date and keeps its original evid
   await page.getByLabel("今天的日记").fill(diaryText);
   await page.getByRole("button", { name: "保存日记", exact: true }).click();
   await page.getByRole("button", { name: /这一页，已经收好/ }).click();
-  await expect(page.locator(".day-heading")).toContainText("10.02");
+  await expect(page.locator(".day-heading")).toContainText("10/2");
   await page.getByRole("button", { name: "日记与成果", exact: true }).click();
   await expect(page.getByTestId("bottom-sheet")).toContainText(diaryText);
   await expect(page.getByTestId("bottom-sheet")).toContainText("证据：论文通过对照实验验证了问题。");

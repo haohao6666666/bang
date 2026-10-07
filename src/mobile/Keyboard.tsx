@@ -57,7 +57,7 @@ export function KeyboardProvider({ children }: PropsWithChildren) {
       setDragOffset,
       setDragging,
       show: (element) => {
-        if (window.matchMedia("(max-width: 699px)").matches) return;
+        if (window.matchMedia("(max-width: 699px)").matches || element?.closest('[data-layout="web"]')) return;
         setRawDragOffset(0);
         setDragging(false);
         setFocusedElement(element ?? null);
@@ -89,21 +89,13 @@ export function useKeyboard() {
 export function useKeyboardInsets() {
   const keyboard = useKeyboard();
   const { device } = useMobileDevice();
-  const reservesAndroidNavigation = device.platform === "android" && !keyboard.visible;
 
   return {
     keyboardHeight: keyboard.height,
     keyboardFullHeight: keyboard.fullHeight,
     keyboardDragging: keyboard.isDragging,
-    bottomInset: reservesAndroidNavigation
-      ? 0
-      : device.platform === "android"
-        ? keyboard.height
-        : Math.max(device.geometry.safeArea.bottom, keyboard.height),
-    availableHeight:
-      device.geometry.screen.height -
-      keyboard.height -
-      (reservesAndroidNavigation ? device.geometry.safeArea.bottom : 0),
+    bottomInset: Math.max(device.geometry.safeArea.bottom, keyboard.height),
+    availableHeight: device.geometry.screen.height - keyboard.height,
     isKeyboardVisible: keyboard.visible,
   };
 }
@@ -232,7 +224,7 @@ export function KeyboardDock() {
     >
       <img
         className="keyboard-asset"
-        src={device.platform === "android" ? mobileAssets.androidKeyboard : mobileAssets.iphoneKeyboard}
+        src={mobileAssets.iphoneKeyboard}
         alt=""
         aria-hidden="true"
         draggable={false}

@@ -15,4 +15,4 @@ export { MobileRuntime } from "./MobileRuntime";
 export { PhoneFrame, useScreenPortal } from "./PhoneFrame";
 export { HomeIndicator, MobileTextField, StatusBar } from "./components";
 export { mobileAssets } from "./assets";
-export { iphoneGeometry, pixelGeometry, type IPhoneGeometry, type MobileDeviceGeometry } from "./geometry";
+export { iphoneGeometry, type IPhoneGeometry, type MobileDeviceGeometry } from "./geometry";

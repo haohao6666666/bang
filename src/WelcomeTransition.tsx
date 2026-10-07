@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { ReferenceArt } from "./ReferenceArt";
+import { BrandMark } from "./BrandArt";
 import "./welcomeTransition.css";
 
 const SESSION_KEY = "jixiang-welcome-seen-v1";
@@ -29,14 +30,14 @@ export function WelcomeTransition({ onComplete, reduceMotion }: { onComplete: ()
     enterButton.current?.closest<HTMLElement>("[data-testid='device-screen']")?.scrollTo({ top: 0, left: 0 });
     enterButton.current?.focus({ preventScroll: true });
     // This is a short welcome, not a loading gate; it always finishes even if artwork fails.
-    const timeout = window.setTimeout(() => finish.current(), 2100);
+    const timeout = window.setTimeout(() => finish.current(), 1500);
     preference.addEventListener("change", finishImmediately);
     return () => { window.clearTimeout(timeout); preference.removeEventListener("change", finishImmediately); };
   }, [reduceMotion]);
 
   return <section className="welcome-transition" role="dialog" aria-modal="true" aria-labelledby="welcome-heading" data-testid="welcome-transition" onKeyDown={event => { if (event.key === "Escape") finish.current(); }}>
     <div className="welcome-paper-edge" aria-hidden="true" />
-    <div className="welcome-brand"><ReferenceArt kind="sprout" eager /><span>知途</span><small>一本关于你的生活手记</small></div>
+    <div className="welcome-brand"><BrandMark/><small>陪伴并记录成长的AI应用</small></div>
     <div className="welcome-scene" aria-hidden="true">
       <span className="welcome-orbit" /><span className="welcome-spark one">✧</span><span className="welcome-spark two">✦</span>
       <ReferenceArt kind="welcome" className="welcome-puppy" eager />

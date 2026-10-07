@@ -54,7 +54,7 @@ test('changing pages resets scroll and long pages have no empty scroll tail',asy
   const verifyTail=async()=>{
     await scroll.evaluate(el=>{el.scrollTop=el.scrollHeight;});
     const bounds=await page.locator('.jixiang-app').evaluate(el=>{
-      const last=el.querySelector('.tab-panel')!;
+      const last=el.lastElementChild!;
       return {tail:el.getBoundingClientRect().bottom-last.getBoundingClientRect().bottom,extra:el.scrollHeight-el.getBoundingClientRect().height};
     });
     expect(bounds.tail).toBeLessThanOrEqual(24);expect(bounds.extra).toBeLessThanOrEqual(2);
